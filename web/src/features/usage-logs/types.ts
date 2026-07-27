@@ -115,9 +115,12 @@ export interface SavingsEstimate {
   source: string
   source_url?: string
   source_updated_at: number
+  price_snapshot_at?: number
+  price_fingerprint?: string
   official_confirmed: boolean
   matched_model: string
   pricing_mode: string
+  calculation_mode?: 'snapshot' | 'historical_rebuild'
   estimated: boolean
 }
 

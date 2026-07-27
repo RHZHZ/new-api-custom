@@ -12,7 +12,7 @@ func TestUpdateSettingSanitizesOfficialSourceURL(t *testing.T) {
 
 	require.NoError(t, UpdateSettingByJSONString(`{
 		"enabled": true,
-		"reference_price_source": "official_snapshot",
+		"reference_price_source": "legacy_value_is_ignored",
 		"official_prices": {
 			" gpt-4o-mini ": {
 				"model_ratio": 1,
@@ -30,6 +30,15 @@ func TestUpdateSettingSanitizesOfficialSourceURL(t *testing.T) {
 	require.True(t, ok)
 	require.Equal(t, "OpenAI", price.Source)
 	require.Equal(t, "https://example.com/pricing?model=gpt", price.SourceURL)
+}
+
+func TestUpdateSettingUsesLocalPricingAndLegacyRebuildDefaults(t *testing.T) {
+	require.NoError(t, UpdateSettingByJSONString(`{"enabled":true}`))
+	t.Cleanup(func() { require.NoError(t, UpdateSettingByJSONString("")) })
+
+	setting := GetSetting()
+	require.True(t, setting.LocalPricingOfficialConfirmed)
+	require.True(t, setting.RebuildLegacyLogs)
 }
 
 func TestValidateSettingRejectsInvalidJSON(t *testing.T) {

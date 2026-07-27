@@ -40,10 +40,13 @@ export interface SavingsSummary {
   actual_quota: number
   request_count: number
   estimated_request_count: number
+  snapshot_request_count?: number
+  reconstructed_request_count?: number
   coverage_ratio: number
   source: string
   official_confirmed: boolean
   source_updated_at: number
+  rebuild_price_snapshot_at?: number
   official_price_stale: boolean
   is_partial: boolean
   window_days: number

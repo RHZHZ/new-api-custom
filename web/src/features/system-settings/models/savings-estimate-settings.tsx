@@ -38,7 +38,8 @@ const DEFAULT_SETTING = {
   enabled: false,
   show_on_dashboard: true,
   show_on_usage_logs: true,
-  reference_price_source: 'official_snapshot',
+  local_pricing_official_confirmed: true,
+  rebuild_legacy_logs: true,
   require_official_confirmation: true,
   official_price_stale_days: 90,
   max_summary_days: 31,
@@ -51,8 +52,19 @@ type SavingsEstimateSettingsProps = {
 }
 
 function savingsSettingText(value: string): string {
-  if (value.trim()) return formatJsonForTextarea(value)
-  return JSON.stringify(DEFAULT_SETTING, null, 2)
+  if (!value.trim()) return JSON.stringify(DEFAULT_SETTING, null, 2)
+  try {
+    const parsed: unknown = JSON.parse(value)
+    if (parsed == null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      return formatJsonForTextarea(value)
+    }
+    const current = { ...(parsed as Record<string, unknown>) }
+    delete current.reference_price_source
+    delete current.include_unpriced_models
+    return JSON.stringify({ ...DEFAULT_SETTING, ...current }, null, 2)
+  } catch {
+    return formatJsonForTextarea(value)
+  }
 }
 
 export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
@@ -60,7 +72,9 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
 }: SavingsEstimateSettingsProps) {
   const { t } = useTranslation()
   const updateOption = useUpdateOption()
-  const [jsonText, setJsonText] = useState(() => savingsSettingText(defaultValue))
+  const [jsonText, setJsonText] = useState(() =>
+    savingsSettingText(defaultValue)
+  )
 
   useEffect(() => {
     setJsonText(savingsSettingText(defaultValue))
@@ -70,7 +84,9 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
     () =>
       validateJsonString(jsonText, {
         predicate: (parsed) =>
-          parsed != null && typeof parsed === 'object' && !Array.isArray(parsed),
+          parsed != null &&
+          typeof parsed === 'object' &&
+          !Array.isArray(parsed),
         predicateMessage: 'JSON must be an object',
       }),
     [jsonText]
@@ -87,7 +103,9 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
     }
 
     const normalized = normalizeJsonString(jsonText)
-    const saved = normalizeJsonString(defaultValue || JSON.stringify(DEFAULT_SETTING))
+    const saved = normalizeJsonString(
+      defaultValue || JSON.stringify(DEFAULT_SETTING)
+    )
     if (normalized === saved) {
       toast.info(t('No changes to save'))
       return
@@ -104,7 +122,7 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
       <Alert>
         <AlertDescription>
           {t(
-            'Configure official pricing snapshots for user savings estimates.'
+            'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.'
           )}
         </AlertDescription>
       </Alert>

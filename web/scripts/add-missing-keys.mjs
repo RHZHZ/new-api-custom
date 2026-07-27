@@ -19,6 +19,8 @@ const newKeys = {
     'Clear usage and balance': 'Clear usage and balance',
     'Configure official pricing snapshots for user savings estimates.':
       'Configure official pricing snapshots for user savings estimates.',
+    'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
+      'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.',
     'Create separate keys for your projects and keep credentials under your control.':
       'Create separate keys for your projects and keep credentials under your control.',
     'Estimated from official pricing': 'Estimated from official pricing',
@@ -61,6 +63,8 @@ const newKeys = {
     'reliability controls': 'reliability controls',
     'supported billing models': 'supported billing models',
     '{{coverage}} coverage': '{{coverage}} coverage',
+    '{{count}} historical requests recalculated at current official prices':
+      '{{count}} historical requests recalculated at current official prices',
     Workspace: 'Workspace',
   },
   zh: {
@@ -74,6 +78,8 @@ const newKeys = {
     'Clear usage and balance': '用量与余额清晰可见',
     'Configure official pricing snapshots for user savings estimates.':
       '配置用于用户节省估算的官方定价快照。',
+    'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
+      '默认使用模型广场中的本地官方定价；official_prices 仅用于覆盖例外模型。',
     'Create separate keys for your projects and keep credentials under your control.':
       '为不同项目创建独立密钥，凭据始终由你掌控。',
     'Estimated from official pricing': '基于官方定价估算',
@@ -112,6 +118,8 @@ const newKeys = {
     'reliability controls': '稳定性保障能力',
     'supported billing models': '支持的计费模型',
     '{{coverage}} coverage': '覆盖率 {{coverage}}',
+    '{{count}} historical requests recalculated at current official prices':
+      '按当前官方定价回算了 {{count}} 条历史请求',
     Workspace: '工作区',
   },
   'zh-TW': {
@@ -125,6 +133,8 @@ const newKeys = {
     'Clear usage and balance': '用量與餘額清楚可見',
     'Configure official pricing snapshots for user savings estimates.':
       '設定用於使用者節省估算的官方定價快照。',
+    'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
+      '預設使用模型廣場中的本機官方定價；official_prices 僅用於覆寫例外模型。',
     'Create separate keys for your projects and keep credentials under your control.':
       '為不同專案建立獨立金鑰，憑證始終由你掌控。',
     'Estimated from official pricing': '基於官方定價估算',
@@ -163,6 +173,8 @@ const newKeys = {
     'reliability controls': '穩定性保障能力',
     'supported billing models': '支援的計費模型',
     '{{coverage}} coverage': '覆蓋率 {{coverage}}',
+    '{{count}} historical requests recalculated at current official prices':
+      '已按目前官方定價回算 {{count}} 筆歷史請求',
     Workspace: '工作區',
   },
   fr: {
@@ -176,6 +188,8 @@ const newKeys = {
     'Clear usage and balance': 'Usage et solde transparents',
     'Configure official pricing snapshots for user savings estimates.':
       "Configurez les instantanés de tarifs officiels pour l'estimation des économies utilisateur.",
+    'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
+      'Utilise par défaut les tarifs officiels locaux de la place de marché des modèles ; official_prices sert uniquement aux exceptions.',
     'Create separate keys for your projects and keep credentials under your control.':
       'Créez une clé par projet et gardez le contrôle de vos identifiants.',
     'Estimated from official pricing': 'Estimé à partir des tarifs officiels',
@@ -211,8 +225,7 @@ const newKeys = {
       'Démarrez avec le flux familier compatible OpenAI.',
     'Three steps to your first model request':
       'Trois étapes vers votre première requête de modèle',
-    'Too many records to summarize':
-      "Trop d'enregistrements à résumer",
+    'Too many records to summarize': "Trop d'enregistrements à résumer",
     'Updated savings official price setting':
       "Configuration des tarifs officiels d'économies mise à jour",
     'Unified model API service': "Service d'API de modèles unifié",
@@ -223,6 +236,8 @@ const newKeys = {
     'reliability controls': 'mécanismes de fiabilité',
     'supported billing models': 'modèles de facturation pris en charge',
     '{{coverage}} coverage': 'Couverture {{coverage}}',
+    '{{count}} historical requests recalculated at current official prices':
+      '{{count}} requêtes historiques recalculées aux tarifs officiels actuels',
     Workspace: 'Espace de travail',
   },
   ja: {
@@ -236,6 +251,8 @@ const newKeys = {
     'Clear usage and balance': '利用量と残高を明確に把握',
     'Configure official pricing snapshots for user savings estimates.':
       'ユーザーの節約見積もりに使う公式価格スナップショットを設定します。',
+    'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
+      'モデル広場のローカル公式価格をデフォルトで使用します。official_prices は例外の上書きにのみ必要です。',
     'Create separate keys for your projects and keep credentials under your control.':
       'プロジェクトごとにキーを作成し、認証情報を自分で管理できます。',
     'Estimated from official pricing': '公式価格から推定',
@@ -277,6 +294,8 @@ const newKeys = {
     'reliability controls': '安定性制御',
     'supported billing models': '対応する課金モデル',
     '{{coverage}} coverage': 'カバー率 {{coverage}}',
+    '{{count}} historical requests recalculated at current official prices':
+      '過去の {{count}} 件のリクエストを現在の公式価格で再計算',
     Workspace: 'ワークスペース',
   },
   ru: {
@@ -290,6 +309,8 @@ const newKeys = {
     'Clear usage and balance': 'Прозрачные расход и баланс',
     'Configure official pricing snapshots for user savings estimates.':
       'Настройте официальные ценовые снимки для оценки экономии пользователей.',
+    'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
+      'По умолчанию используются локальные официальные цены из каталога моделей; official_prices нужен только для исключений.',
     'Create separate keys for your projects and keep credentials under your control.':
       'Создавайте отдельные ключи для проектов и сохраняйте контроль над учетными данными.',
     'Estimated from official pricing': 'Оценено по официальным тарифам',
@@ -306,13 +327,11 @@ const newKeys = {
     'Official pricing estimate': 'Оценка по официальным тарифам',
     'No eligible savings records yet':
       'Пока нет подходящих записей об экономии',
-    'RAPI saved you about {{amount}}':
-      'RAPI сэкономил вам около {{amount}}',
+    'RAPI saved you about {{amount}}': 'RAPI сэкономил вам около {{amount}}',
     'Request completed': 'Запрос выполнен',
     'Requests are routed across available services to improve call stability.':
       'Запросы распределяются между доступными сервисами для повышения стабильности.',
-    'Save savings estimate settings':
-      'Сохранить настройки оценки экономии',
+    'Save savings estimate settings': 'Сохранить настройки оценки экономии',
     'Savings estimate': 'Оценка экономии',
     'Savings estimate is not enabled': 'Оценка экономии не включена',
     'Stable model calls': 'Стабильные вызовы моделей',
@@ -324,8 +343,7 @@ const newKeys = {
       'Начните со знакомого OpenAI-совместимого процесса.',
     'Three steps to your first model request':
       'Три шага до первого запроса к модели',
-    'Too many records to summarize':
-      'Слишком много записей для сводки',
+    'Too many records to summarize': 'Слишком много записей для сводки',
     'Updated savings official price setting':
       'Настройка официальных цен для экономии обновлена',
     'Unified model API service': 'Единый сервис API моделей',
@@ -336,6 +354,8 @@ const newKeys = {
     'reliability controls': 'механизмов надежности',
     'supported billing models': 'поддерживаемых моделей оплаты',
     '{{coverage}} coverage': 'Покрытие {{coverage}}',
+    '{{count}} historical requests recalculated at current official prices':
+      '{{count}} исторических запросов пересчитано по текущим официальным ценам',
     Workspace: 'Рабочая область',
   },
   vi: {
@@ -349,6 +369,8 @@ const newKeys = {
     'Clear usage and balance': 'Mức sử dụng và số dư minh bạch',
     'Configure official pricing snapshots for user savings estimates.':
       'Cấu hình bản chụp giá chính thức dùng cho ước tính tiết kiệm của người dùng.',
+    'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
+      'Mặc định dùng giá chính thức cục bộ từ kho mô hình; official_prices chỉ cần để ghi đè ngoại lệ.',
     'Create separate keys for your projects and keep credentials under your control.':
       'Tạo khóa riêng cho từng dự án và luôn kiểm soát thông tin xác thực.',
     'Estimated from official pricing': 'Ước tính theo giá chính thức',
@@ -363,8 +385,7 @@ const newKeys = {
     'Official Price Updated': 'Cập nhật giá chính thức',
     'Official price updated {{time}}': 'Giá chính thức cập nhật {{time}}',
     'Official pricing estimate': 'Ước tính giá chính thức',
-    'No eligible savings records yet':
-      'Chưa có bản ghi tiết kiệm đủ điều kiện',
+    'No eligible savings records yet': 'Chưa có bản ghi tiết kiệm đủ điều kiện',
     'RAPI saved you about {{amount}}':
       'RAPI đã giúp bạn tiết kiệm khoảng {{amount}}',
     'Request completed': 'Yêu cầu đã hoàn tất',
@@ -393,6 +414,8 @@ const newKeys = {
     'reliability controls': 'cơ chế đảm bảo ổn định',
     'supported billing models': 'mô hình tính phí được hỗ trợ',
     '{{coverage}} coverage': 'Mức bao phủ {{coverage}}',
+    '{{count}} historical requests recalculated at current official prices':
+      'Đã tính lại {{count}} yêu cầu cũ theo giá chính thức hiện tại',
     Workspace: 'Không gian làm việc',
   },
 }

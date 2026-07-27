@@ -35,6 +35,7 @@ import {
   getUserSavingsSummary,
 } from '@/features/dashboard/api'
 import { useSummaryCardsConfig } from '@/features/dashboard/hooks/use-dashboard-config'
+import { getRollingSavingsTimeRange } from '@/features/dashboard/lib/savings'
 import type { QuotaDataItem } from '@/features/dashboard/types'
 import { useStatus } from '@/hooks/use-status'
 import { getCurrencyLabel, isCurrencyDisplayEnabled } from '@/lib/currency'
@@ -151,13 +152,6 @@ export function SummaryCards() {
   const { status, loading } = useStatus()
 
   const summaryTimeRange = useMemo(() => computeTimeRange(1), [])
-  const savingsSummaryTimeRange = useMemo(() => {
-    const end = Math.floor(Date.now() / 1000)
-    return {
-      start_timestamp: end - 24 * 3600,
-      end_timestamp: end,
-    }
-  }, [])
   const remainQuota = Number(user?.quota ?? 0)
   const usedQuota = Number(user?.used_quota ?? 0)
   const requestCount = Number(user?.request_count ?? 0)
@@ -180,19 +174,10 @@ export function SummaryCards() {
   })
 
   const savingsSummaryQuery = useQuery({
-    queryKey: [
-      'dashboard',
-      'overview',
-      'savings-summary',
-      savingsSummaryTimeRange.start_timestamp,
-      savingsSummaryTimeRange.end_timestamp,
-    ],
-    queryFn: async () =>
-      getUserSavingsSummary({
-        start_timestamp: savingsSummaryTimeRange.start_timestamp,
-        end_timestamp: savingsSummaryTimeRange.end_timestamp,
-      }),
+    queryKey: ['dashboard', 'overview', 'savings-summary', 'rolling-24h'],
+    queryFn: async () => getUserSavingsSummary(getRollingSavingsTimeRange()),
     staleTime: 60 * 1000,
+    refetchInterval: 60 * 1000,
   })
 
   const summaryValues = useMemo(() => {
@@ -244,6 +229,8 @@ export function SummaryCards() {
 
   const todayUsageDisplay = formatQuota(recentUsage)
   const savingsSummary = savingsSummaryQuery.data?.data
+  const reconstructedSavingsCount =
+    savingsSummary?.reconstructed_request_count ?? 0
   const showSavingsSummary = savingsSummary != null
   const hasPositiveSavings =
     savingsSummary?.enabled === true &&
@@ -272,6 +259,16 @@ export function SummaryCards() {
         }
       )}`
     }
+  }
+  if (
+    savingsSummary?.enabled === true &&
+    !savingsSummary.is_partial &&
+    reconstructedSavingsCount > 0
+  ) {
+    savingsSummaryDescription = `${savingsSummaryDescription} · ${t(
+      '{{count}} historical requests recalculated at current official prices',
+      { count: reconstructedSavingsCount }
+    )}`
   }
   let runwayDisplay: string
   if (runwayDays !== null) {

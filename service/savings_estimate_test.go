@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/QuantumNous/new-api/common"
+	"github.com/QuantumNous/new-api/model"
 	"github.com/QuantumNous/new-api/pkg/billingexpr"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/setting/savings_setting"
@@ -46,6 +47,8 @@ func TestBuildTextSavingsEstimateUsesConfirmedOfficialPrice(t *testing.T) {
 	require.Equal(t, "https://openai.com/api/pricing", result.Estimate.SourceURL)
 	require.Equal(t, "gpt-4o-mini", result.Estimate.MatchedModel)
 	require.True(t, result.Estimate.OfficialConfirmed)
+	require.Equal(t, savingsCalculationSnapshot, result.Estimate.CalculationMode)
+	require.NotEmpty(t, result.Estimate.PriceFingerprint)
 }
 
 func TestBuildTextSavingsEstimateSkipsUnconfirmedOfficialPrice(t *testing.T) {
@@ -134,6 +137,14 @@ func TestSavingsEstimateFromOtherRejectsInvalidPayloads(t *testing.T) {
 			OfficialQuota: -1,
 		},
 	})))
+	require.Nil(t, savingsEstimateFromOther(common.MapToJsonStr(map[string]any{
+		"savings_estimate": SavingsEstimate{
+			SchemaVersion: savingsEstimateSchemaVersion,
+			OfficialQuota: 200,
+			ActualQuota:   80,
+			SavingsQuota:  121,
+		},
+	})))
 
 	other := common.MapToJsonStr(map[string]any{
 		"savings_estimate": SavingsEstimate{
@@ -149,21 +160,137 @@ func TestSavingsEstimateFromOtherRejectsInvalidPayloads(t *testing.T) {
 	require.Equal(t, 120, estimate.SavingsQuota)
 }
 
+func TestMatchSavingsOfficialPriceUsesLocalPricingFallback(t *testing.T) {
+	setting := savings_setting.Setting{
+		LocalPricingOfficialConfirmed: true,
+		RequireOfficialConfirmation:   true,
+		OfficialPrices:                map[string]savings_setting.OfficialPrice{},
+	}
+	localPrices := map[string]savings_setting.OfficialPrice{
+		"gpt-4o-mini": {
+			ModelRatio:        float64Ptr(1),
+			CompletionRatio:   float64Ptr(2),
+			Source:            savingsSourceLocalPricing,
+			PriceSnapshotAt:   1_700_000_000,
+			OfficialConfirmed: true,
+		},
+	}
+
+	price, matchedModel, skipReason := matchSavingsOfficialPriceCandidates(
+		setting,
+		[]string{"gpt-4o-mini"},
+		localPrices,
+		1_700_000_000,
+	)
+
+	require.Empty(t, skipReason)
+	require.Equal(t, "gpt-4o-mini", matchedModel)
+	require.Equal(t, savingsSourceLocalPricing, price.Source)
+	require.NotEmpty(t, price.PriceFingerprint)
+}
+
+func TestSavingsPriceFingerprintTracksPricingFields(t *testing.T) {
+	first := savings_setting.OfficialPrice{
+		ModelRatio:      float64Ptr(1),
+		CompletionRatio: float64Ptr(2),
+	}
+	second := first
+	require.True(t, finalizeSavingsOfficialPrice(&first, "gpt-4o-mini"))
+	require.True(t, finalizeSavingsOfficialPrice(&second, "gpt-4o-mini"))
+	require.Equal(t, first.PriceFingerprint, second.PriceFingerprint)
+
+	second.CompletionRatio = float64Ptr(3)
+	require.True(t, finalizeSavingsOfficialPrice(&second, "gpt-4o-mini"))
+	require.NotEqual(t, first.PriceFingerprint, second.PriceFingerprint)
+}
+
+func TestRebuildHistoricalSavingsEstimateRequiresActualQuotaMatch(t *testing.T) {
+	setting := savings_setting.Setting{
+		RequireOfficialConfirmation: true,
+		OfficialPrices: map[string]savings_setting.OfficialPrice{
+			"gpt-4o-mini": {
+				ModelRatio:        float64Ptr(2),
+				CompletionRatio:   float64Ptr(3),
+				Source:            "OpenAI",
+				OfficialConfirmed: true,
+			},
+		},
+	}
+	row := model.SavingsLogRow{
+		ModelName:        "gpt-4o-mini",
+		PromptTokens:     100,
+		CompletionTokens: 10,
+		Quota:            55,
+		Other: common.MapToJsonStr(map[string]any{
+			"model_ratio":      0.5,
+			"group_ratio":      1.0,
+			"completion_ratio": 1.0,
+			"model_price":      0.0,
+			"cache_tokens":     0,
+			"cache_ratio":      0.5,
+		}),
+	}
+
+	result := rebuildHistoricalSavingsEstimate(setting, nil, row, 1_700_000_000)
+
+	require.Empty(t, result.SkipReason)
+	require.NotNil(t, result.Estimate)
+	require.Equal(t, 260, result.Estimate.OfficialQuota)
+	require.Equal(t, 55, result.Estimate.ActualQuota)
+	require.Equal(t, 205, result.Estimate.SavingsQuota)
+	require.Equal(t, savingsCalculationHistorical, result.Estimate.CalculationMode)
+
+	row.Quota = 56
+	result = rebuildHistoricalSavingsEstimate(setting, nil, row, 1_700_000_000)
+	require.Nil(t, result.Estimate)
+	require.Equal(t, SavingsSkipLegacyActualQuotaMismatch, result.SkipReason)
+}
+
+func TestRebuildHistoricalSavingsEstimateRejectsMissingBaseFields(t *testing.T) {
+	result := rebuildHistoricalSavingsEstimate(
+		savings_setting.Setting{},
+		nil,
+		model.SavingsLogRow{
+			ModelName:        "gpt-4o-mini",
+			PromptTokens:     100,
+			CompletionTokens: 10,
+			Quota:            55,
+			Other:            `{}`,
+		},
+		1_700_000_000,
+	)
+
+	require.Nil(t, result.Estimate)
+	require.Equal(t, SavingsSkipLegacyMissingBaseFields, result.SkipReason)
+}
+
+func TestNormalizeSavingsSummaryWindowClampsSmallClockSkew(t *testing.T) {
+	now := time.Now().Unix()
+	effectiveEnd, err := NormalizeSavingsSummaryWindow(now-3600, now+60)
+
+	require.NoError(t, err)
+	require.InDelta(t, time.Now().Unix(), effectiveEnd, 1)
+
+	_, err = NormalizeSavingsSummaryWindow(now-3600, now+5*60+10)
+	require.EqualError(t, err, "结束时间不能晚于当前时间")
+}
+
 func configureSavingsSetting(t *testing.T, prices map[string]savings_setting.OfficialPrice) {
 	t.Helper()
 	require.NoError(t, savings_setting.UpdateSettingByJSONString(""))
 	t.Cleanup(func() { require.NoError(t, savings_setting.UpdateSettingByJSONString("")) })
 
 	value := savings_setting.Setting{
-		Enabled:                     true,
-		ShowOnDashboard:             true,
-		ShowOnUsageLogs:             true,
-		ReferencePriceSource:        "official_snapshot",
-		RequireOfficialConfirmation: true,
-		OfficialPriceStaleDays:      90,
-		MaxSummaryDays:              31,
-		MaxSummaryLogRows:           50000,
-		OfficialPrices:              prices,
+		Enabled:                       true,
+		ShowOnDashboard:               true,
+		ShowOnUsageLogs:               true,
+		LocalPricingOfficialConfirmed: false,
+		RebuildLegacyLogs:             true,
+		RequireOfficialConfirmation:   true,
+		OfficialPriceStaleDays:        90,
+		MaxSummaryDays:                31,
+		MaxSummaryLogRows:             50000,
+		OfficialPrices:                prices,
 	}
 	jsonBytes, err := common.Marshal(value)
 	require.NoError(t, err)

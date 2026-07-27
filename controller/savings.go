@@ -27,7 +27,8 @@ func GetUserSavingsSummary(c *gin.Context) {
 		})
 		return
 	}
-	if err := service.ValidateSavingsSummaryWindow(startTimestamp, endTimestamp); err != nil {
+	effectiveEndTimestamp, err := service.NormalizeSavingsSummaryWindow(startTimestamp, endTimestamp)
+	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"success": false,
 			"message": err.Error(),
@@ -35,7 +36,7 @@ func GetUserSavingsSummary(c *gin.Context) {
 		return
 	}
 
-	summary, err := service.GetUserSavingsSummary(c.GetInt("id"), startTimestamp, endTimestamp)
+	summary, err := service.GetUserSavingsSummary(c.GetInt("id"), startTimestamp, effectiveEndTimestamp)
 	if err != nil {
 		common.ApiError(c, err)
 		return

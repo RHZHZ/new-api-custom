@@ -27,23 +27,25 @@ type OfficialPrice struct {
 	Source               string   `json:"source,omitempty"`
 	SourceURL            string   `json:"source_url,omitempty"`
 	SourceUpdatedAt      int64    `json:"source_updated_at,omitempty"`
+	PriceSnapshotAt      int64    `json:"price_snapshot_at,omitempty"`
+	PriceFingerprint     string   `json:"price_fingerprint,omitempty"`
 	OfficialConfirmed    bool     `json:"official_confirmed,omitempty"`
 	ConfirmedAt          int64    `json:"confirmed_at,omitempty"`
 	ConfirmedBy          string   `json:"confirmed_by,omitempty"`
 }
 
 type Setting struct {
-	Enabled                     bool                     `json:"enabled"`
-	ShowOnDashboard             bool                     `json:"show_on_dashboard"`
-	ShowOnUsageLogs             bool                     `json:"show_on_usage_logs"`
-	ReferencePriceSource        string                   `json:"reference_price_source"`
-	RequireOfficialConfirmation bool                     `json:"require_official_confirmation"`
-	IncludeUnpricedModels       bool                     `json:"include_unpriced_models"`
-	OfficialPriceStaleDays      int                      `json:"official_price_stale_days"`
-	MaxSummaryDays              int                      `json:"max_summary_days"`
-	MaxSummaryLogRows           int                      `json:"max_summary_log_rows"`
-	UpdatedAt                   int64                    `json:"updated_at"`
-	OfficialPrices              map[string]OfficialPrice `json:"official_prices,omitempty"`
+	Enabled                       bool                     `json:"enabled"`
+	ShowOnDashboard               bool                     `json:"show_on_dashboard"`
+	ShowOnUsageLogs               bool                     `json:"show_on_usage_logs"`
+	LocalPricingOfficialConfirmed bool                     `json:"local_pricing_official_confirmed"`
+	RebuildLegacyLogs             bool                     `json:"rebuild_legacy_logs"`
+	RequireOfficialConfirmation   bool                     `json:"require_official_confirmation"`
+	OfficialPriceStaleDays        int                      `json:"official_price_stale_days"`
+	MaxSummaryDays                int                      `json:"max_summary_days"`
+	MaxSummaryLogRows             int                      `json:"max_summary_log_rows"`
+	UpdatedAt                     int64                    `json:"updated_at"`
+	OfficialPrices                map[string]OfficialPrice `json:"official_prices,omitempty"`
 }
 
 const (
@@ -59,16 +61,16 @@ var (
 
 func defaultSetting() Setting {
 	return Setting{
-		Enabled:                     false,
-		ShowOnDashboard:             true,
-		ShowOnUsageLogs:             true,
-		ReferencePriceSource:        "official_snapshot",
-		RequireOfficialConfirmation: true,
-		IncludeUnpricedModels:       false,
-		OfficialPriceStaleDays:      defaultOfficialPriceStaleDays,
-		MaxSummaryDays:              defaultMaxSummaryDays,
-		MaxSummaryLogRows:           defaultMaxSummaryLogRows,
-		OfficialPrices:              map[string]OfficialPrice{},
+		Enabled:                       false,
+		ShowOnDashboard:               true,
+		ShowOnUsageLogs:               true,
+		LocalPricingOfficialConfirmed: true,
+		RebuildLegacyLogs:             true,
+		RequireOfficialConfirmation:   true,
+		OfficialPriceStaleDays:        defaultOfficialPriceStaleDays,
+		MaxSummaryDays:                defaultMaxSummaryDays,
+		MaxSummaryLogRows:             defaultMaxSummaryLogRows,
+		OfficialPrices:                map[string]OfficialPrice{},
 	}
 }
 
@@ -177,9 +179,6 @@ func copySetting(src Setting) Setting {
 }
 
 func normalizeSetting(s *Setting) {
-	if s.ReferencePriceSource == "" {
-		s.ReferencePriceSource = "official_snapshot"
-	}
 	if s.OfficialPriceStaleDays <= 0 {
 		s.OfficialPriceStaleDays = defaultOfficialPriceStaleDays
 	}
