@@ -23,6 +23,10 @@ tiktoken_cache
 plans
 .claude
 .cursor
+tmp/
+output/
+web/new-api-them/
+.spec-workflow/
 
 electron/node_modules
 electron/dist
