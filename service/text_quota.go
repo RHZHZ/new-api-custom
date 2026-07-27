@@ -488,7 +488,7 @@ func PostTextConsumeQuota(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, us
 		InjectTieredBillingInfo(other, relayInfo, tieredResult)
 	}
 
-	AttachTextSavingsEstimate(ctx, relayInfo, summary, tieredBillingApplied, other)
+	AttachTextSavingsEstimate(ctx, relayInfo, summary, other)
 	attachQuotaSaturation(ctx, relayInfo, other)
 
 	model.RecordConsumeLog(ctx, relayInfo.UserId, model.RecordConsumeLogParams{

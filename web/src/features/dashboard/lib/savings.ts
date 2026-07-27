@@ -29,3 +29,38 @@ export function getRollingSavingsTimeRange(nowMs = Date.now()): {
     end_timestamp: endTimestamp,
   }
 }
+
+export function formatSavingsQuotaAsCNY(
+  quota: number,
+  quotaPerUnit: number,
+  usdExchangeRate: number,
+  locales?: Intl.LocalesArgument
+): string {
+  if (!Number.isFinite(quota)) return '-'
+
+  const amountCNY = savingsQuotaToCNY(quota, quotaPerUnit, usdExchangeRate)
+
+  return new Intl.NumberFormat(locales, {
+    style: 'currency',
+    currency: 'CNY',
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: Math.abs(amountCNY) >= 1 ? 2 : 4,
+  }).format(amountCNY)
+}
+
+export function savingsQuotaToCNY(
+  quota: number,
+  quotaPerUnit: number,
+  usdExchangeRate: number
+): number {
+  if (!Number.isFinite(quota)) return 0
+
+  const effectiveQuotaPerUnit =
+    Number.isFinite(quotaPerUnit) && quotaPerUnit > 0 ? quotaPerUnit : 500_000
+  const effectiveExchangeRate =
+    Number.isFinite(usdExchangeRate) && usdExchangeRate > 0
+      ? usdExchangeRate
+      : 1
+  return (quota / effectiveQuotaPerUnit) * effectiveExchangeRate
+}

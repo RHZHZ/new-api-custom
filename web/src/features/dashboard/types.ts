@@ -52,6 +52,30 @@ export interface SavingsSummary {
   window_days: number
 }
 
+export type SavingsTrendGranularity = 'hour' | 'day'
+
+export interface SavingsTrendBucket {
+  start_timestamp: number
+  end_timestamp: number
+  official_quota: number
+  actual_quota: number
+  savings_quota: number
+  request_count: number
+  estimated_request_count: number
+  snapshot_request_count: number
+  reconstructed_request_count: number
+  coverage_ratio: number
+}
+
+export interface SavingsTrend {
+  granularity: SavingsTrendGranularity
+  utc_offset_minutes: number
+  start_timestamp: number
+  end_timestamp: number
+  summary: SavingsSummary
+  buckets: SavingsTrendBucket[]
+}
+
 export interface FlowQuotaDataItem {
   user_id?: number
   username?: string

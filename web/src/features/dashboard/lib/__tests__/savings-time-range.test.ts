@@ -19,7 +19,10 @@ For commercial licensing, please contact support@quantumnous.com
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { getRollingSavingsTimeRange } from '../savings.ts'
+import {
+  formatSavingsQuotaAsCNY,
+  getRollingSavingsTimeRange,
+} from '../savings.ts'
 
 describe('getRollingSavingsTimeRange', () => {
   it('returns a rolling 24 hour window at request time', () => {
@@ -28,5 +31,13 @@ describe('getRollingSavingsTimeRange', () => {
 
     assert.equal(first.end_timestamp - first.start_timestamp, 24 * 60 * 60)
     assert.equal(second.end_timestamp - first.end_timestamp, 60)
+  })
+})
+
+describe('formatSavingsQuotaAsCNY', () => {
+  it('converts quota through USD into CNY with the configured exchange rate', () => {
+    const formatted = formatSavingsQuotaAsCNY(10_537_576, 500_000, 7.3, 'zh-CN')
+
+    assert.equal(formatted, '¥153.85')
   })
 })

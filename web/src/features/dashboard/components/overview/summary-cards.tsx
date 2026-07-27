@@ -20,6 +20,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import {
   ArrowRight,
+  ArrowUpRight,
   BadgeDollarSign,
   Flame,
   ShieldCheck,
@@ -31,11 +32,19 @@ import { useTranslation } from 'react-i18next'
 import { StaggerContainer, StaggerItem } from '@/components/page-transition'
 import { Button } from '@/components/ui/button'
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import {
   getUserQuotaDates,
   getUserSavingsSummary,
 } from '@/features/dashboard/api'
 import { useSummaryCardsConfig } from '@/features/dashboard/hooks/use-dashboard-config'
-import { getRollingSavingsTimeRange } from '@/features/dashboard/lib/savings'
+import {
+  formatSavingsQuotaAsCNY,
+  getRollingSavingsTimeRange,
+} from '@/features/dashboard/lib/savings'
 import type { QuotaDataItem } from '@/features/dashboard/types'
 import { useStatus } from '@/hooks/use-status'
 import { getCurrencyLabel, isCurrencyDisplayEnabled } from '@/lib/currency'
@@ -229,6 +238,14 @@ export function SummaryCards() {
 
   const todayUsageDisplay = formatQuota(recentUsage)
   const savingsSummary = savingsSummaryQuery.data?.data
+  const savingsAmountDisplay =
+    savingsSummary == null
+      ? ''
+      : formatSavingsQuotaAsCNY(
+          savingsSummary.savings_quota,
+          Number(status?.quota_per_unit),
+          Number(status?.usd_exchange_rate)
+        )
   const reconstructedSavingsCount =
     savingsSummary?.reconstructed_request_count ?? 0
   const showSavingsSummary = savingsSummary != null
@@ -403,23 +420,40 @@ export function SummaryCards() {
               <div className='bg-background rounded-md border px-2.5 py-2'>
                 <div
                   className={cn(
-                    'flex items-center gap-1 text-xs leading-snug font-semibold',
+                    'flex items-start justify-between gap-2 text-xs leading-snug font-semibold',
                     hasPositiveSavings ? 'text-success' : 'text-foreground'
                   )}
                 >
-                  <BadgeDollarSign
-                    className='size-3.5 shrink-0'
-                    aria-hidden='true'
-                  />
-                  <span className='min-w-0'>
-                    {hasPositiveSavings
-                      ? t('RAPI saved you about {{amount}}', {
-                          amount: formatQuota(savingsSummary.savings_quota),
-                        })
-                      : `${t('Savings estimate')}: ${formatQuota(
-                          savingsSummary.savings_quota
-                        )}`}
-                  </span>
+                  <div className='flex min-w-0 items-center gap-1'>
+                    <BadgeDollarSign
+                      className='size-3.5 shrink-0'
+                      aria-hidden='true'
+                    />
+                    <span className='min-w-0'>
+                      {hasPositiveSavings
+                        ? t('RAPI saved you about {{amount}}', {
+                            amount: savingsAmountDisplay,
+                          })
+                        : `${t('Savings estimate')}: ${savingsAmountDisplay}`}
+                    </span>
+                  </div>
+                  {savingsSummary.enabled && (
+                    <Tooltip>
+                      <TooltipTrigger
+                        render={
+                          <Link
+                            to='/dashboard/$section'
+                            params={{ section: 'models' }}
+                            className='text-muted-foreground hover:text-foreground inline-flex shrink-0'
+                            aria-label={t('View savings trend')}
+                          />
+                        }
+                      >
+                        <ArrowUpRight className='size-3.5' />
+                      </TooltipTrigger>
+                      <TooltipContent>{t('View savings trend')}</TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
                 <div className='text-muted-foreground mt-1 text-[11px] leading-snug'>
                   {savingsSummaryDescription}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/QuantumNous/new-api/common"
 	"github.com/QuantumNous/new-api/model"
+	"github.com/QuantumNous/new-api/pkg/billingexpr"
 	relaycommon "github.com/QuantumNous/new-api/relay/common"
 	"github.com/QuantumNous/new-api/setting/billing_setting"
 	"github.com/QuantumNous/new-api/setting/ratio_setting"
@@ -41,6 +43,11 @@ const (
 	SavingsSkipLegacyMissingBaseFields   = "legacy_log_missing_base_fields"
 	SavingsSkipLegacyInvalidSnapshot     = "legacy_log_invalid_snapshot"
 	SavingsSkipLegacyActualQuotaMismatch = "legacy_actual_quota_mismatch"
+
+	SavingsTrendGranularityHour = "hour"
+	SavingsTrendGranularityDay  = "day"
+	savingsTrendMaxBuckets      = 64
+	savingsTrendMaxHourSeconds  = 48 * 3600
 )
 
 type SavingsEstimate struct {
@@ -85,6 +92,48 @@ type SavingsSummary struct {
 	WindowDays                int     `json:"window_days"`
 }
 
+type SavingsTrendBucket struct {
+	StartTimestamp            int64   `json:"start_timestamp"`
+	EndTimestamp              int64   `json:"end_timestamp"`
+	OfficialQuota             int64   `json:"official_quota"`
+	ActualQuota               int64   `json:"actual_quota"`
+	SavingsQuota              int64   `json:"savings_quota"`
+	RequestCount              int64   `json:"request_count"`
+	EstimatedRequestCount     int64   `json:"estimated_request_count"`
+	SnapshotRequestCount      int64   `json:"snapshot_request_count"`
+	ReconstructedRequestCount int64   `json:"reconstructed_request_count"`
+	CoverageRatio             float64 `json:"coverage_ratio"`
+}
+
+type SavingsTrend struct {
+	Granularity      string               `json:"granularity"`
+	UTCOffsetMinutes int                  `json:"utc_offset_minutes"`
+	StartTimestamp   int64                `json:"start_timestamp"`
+	EndTimestamp     int64                `json:"end_timestamp"`
+	Summary          SavingsSummary       `json:"summary"`
+	Buckets          []SavingsTrendBucket `json:"buckets"`
+}
+
+type savingsLogEstimate struct {
+	Estimate        *SavingsEstimate
+	CalculationMode string
+	SkipReason      string
+}
+
+type savingsLogEstimator struct {
+	setting         savings_setting.Setting
+	localPrices     map[string]savings_setting.OfficialPrice
+	priceSnapshotAt int64
+}
+
+type savingsSummaryAccumulator struct {
+	summary         *SavingsSummary
+	priceSnapshotAt int64
+	staleBefore     int64
+	sources         map[string]struct{}
+	allConfirmed    bool
+}
+
 type savingsLogOther struct {
 	SavingsEstimate json.RawMessage `json:"savings_estimate"`
 }
@@ -114,6 +163,7 @@ type legacySavingsLogOther struct {
 	FileSearch              bool     `json:"file_search"`
 	AudioInputSeparatePrice bool     `json:"audio_input_seperate_price"`
 	ImageGenerationCall     bool     `json:"image_generation_call"`
+	ExprB64                 string   `json:"expr_b64"`
 }
 
 type savingsPriceFingerprint struct {
@@ -133,18 +183,18 @@ type savingsPriceFingerprint struct {
 	BillingExpr          string   `json:"billing_expr"`
 }
 
-func AttachTextSavingsEstimate(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, summary textQuotaSummary, tieredBillingApplied bool, other map[string]interface{}) {
+func AttachTextSavingsEstimate(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, summary textQuotaSummary, other map[string]interface{}) {
 	if other == nil {
 		return
 	}
-	result := buildTextSavingsEstimate(ctx, relayInfo, summary, tieredBillingApplied)
+	result := buildTextSavingsEstimate(ctx, relayInfo, summary)
 	if result.Estimate == nil {
 		return
 	}
 	other["savings_estimate"] = result.Estimate
 }
 
-func buildTextSavingsEstimate(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, summary textQuotaSummary, tieredBillingApplied bool) SavingsEstimateResult {
+func buildTextSavingsEstimate(ctx *gin.Context, relayInfo *relaycommon.RelayInfo, summary textQuotaSummary) SavingsEstimateResult {
 	if !savings_setting.IsEnabled() {
 		return SavingsEstimateResult{SkipReason: SavingsSkipDisabled}
 	}
@@ -157,7 +207,7 @@ func buildTextSavingsEstimate(ctx *gin.Context, relayInfo *relaycommon.RelayInfo
 	if summary.Quota < 0 {
 		return SavingsEstimateResult{SkipReason: SavingsSkipInvalidSnapshot}
 	}
-	if tieredBillingApplied || relayInfo.TieredBillingSnapshot != nil || relayInfo.PriceData.UsePrice {
+	if relayInfo.PriceData.UsePrice {
 		return SavingsEstimateResult{SkipReason: SavingsSkipUnsupportedBillingMode}
 	}
 	if hasSavingsUnsupportedTextExtra(relayInfo, summary) {
@@ -192,7 +242,7 @@ func buildTextSavingsEstimate(ctx *gin.Context, relayInfo *relaycommon.RelayInfo
 			PriceFingerprint:  price.PriceFingerprint,
 			OfficialConfirmed: price.OfficialConfirmed,
 			MatchedModel:      matchedModel,
-			PricingMode:       "per_token",
+			PricingMode:       savingsPricingMode(price),
 			CalculationMode:   savingsCalculationSnapshot,
 			Estimated:         true,
 		},
@@ -201,96 +251,275 @@ func buildTextSavingsEstimate(ctx *gin.Context, relayInfo *relaycommon.RelayInfo
 
 func GetUserSavingsSummary(userId int, startTimestamp int64, endTimestamp int64) (*SavingsSummary, error) {
 	setting := savings_setting.GetSetting()
-	windowDays := savingsWindowDays(startTimestamp, endTimestamp)
-	summary := &SavingsSummary{
-		Enabled:    setting.Enabled && setting.ShowOnDashboard,
-		Source:     "official_snapshot",
-		WindowDays: windowDays,
-	}
+	summary := newSavingsSummary(setting, startTimestamp, endTimestamp)
 	if !summary.Enabled {
 		return summary, nil
 	}
 
-	maxRows := savings_setting.MaxSummaryLogRows()
-	total, err := model.CountUserSavingsConsumeLogs(userId, startTimestamp, endTimestamp)
+	rows, total, partial, err := loadUserSavingsRows(userId, startTimestamp, endTimestamp)
 	if err != nil {
 		return nil, err
 	}
 	summary.RequestCount = total
-	if total == 0 {
-		return summary, nil
-	}
-	if int64(maxRows) > 0 && total > int64(maxRows) {
+	if partial {
 		summary.IsPartial = true
 		return summary, nil
 	}
+	if total == 0 {
+		return summary, nil
+	}
 
-	rows, err := model.GetUserSavingsConsumeLogs(userId, startTimestamp, endTimestamp, maxRows)
+	estimator := newSavingsLogEstimator(setting)
+	accumulator := newSavingsSummaryAccumulator(summary, estimator.priceSnapshotAt, setting.OfficialPriceStaleDays)
+	for _, row := range rows {
+		result := estimator.estimate(row)
+		if result.Estimate == nil {
+			continue
+		}
+		if err := accumulator.add(result); err != nil {
+			return nil, err
+		}
+	}
+	accumulator.finish()
+	return summary, nil
+}
+
+func GetUserSavingsTrend(userId int, startTimestamp int64, endTimestamp int64, granularity string, utcOffsetMinutes int) (*SavingsTrend, error) {
+	setting := savings_setting.GetSetting()
+	summary := newSavingsSummary(setting, startTimestamp, endTimestamp)
+	buckets, bucketSize, err := buildSavingsTrendBuckets(startTimestamp, endTimestamp, granularity, utcOffsetMinutes)
 	if err != nil {
 		return nil, err
 	}
+	trend := &SavingsTrend{
+		Granularity:      granularity,
+		UTCOffsetMinutes: utcOffsetMinutes,
+		StartTimestamp:   startTimestamp,
+		EndTimestamp:     endTimestamp,
+		Summary:          *summary,
+		Buckets:          buckets,
+	}
+	if !summary.Enabled {
+		return trend, nil
+	}
+
+	rows, total, partial, err := loadUserSavingsRows(userId, startTimestamp, endTimestamp)
+	if err != nil {
+		return nil, err
+	}
+	summary.RequestCount = total
+	if partial {
+		summary.IsPartial = true
+		trend.Summary = *summary
+		trend.Buckets = []SavingsTrendBucket{}
+		return trend, nil
+	}
+	if total == 0 {
+		trend.Summary = *summary
+		return trend, nil
+	}
+
+	estimator := newSavingsLogEstimator(setting)
+	accumulator := newSavingsSummaryAccumulator(summary, estimator.priceSnapshotAt, setting.OfficialPriceStaleDays)
+	firstBucketStart := buckets[0].StartTimestamp
+	for _, row := range rows {
+		bucketIndex := int((row.CreatedAt - firstBucketStart) / bucketSize)
+		if bucketIndex < 0 || bucketIndex >= len(buckets) {
+			continue
+		}
+		bucket := &buckets[bucketIndex]
+		bucket.RequestCount++
+
+		result := estimator.estimate(row)
+		if result.Estimate == nil {
+			continue
+		}
+		if err := accumulator.add(result); err != nil {
+			return nil, err
+		}
+		if err := addSavingsTrendBucket(bucket, result); err != nil {
+			return nil, err
+		}
+	}
+	accumulator.finish()
+	for i := range buckets {
+		if buckets[i].RequestCount > 0 {
+			buckets[i].CoverageRatio = float64(buckets[i].EstimatedRequestCount) / float64(buckets[i].RequestCount)
+		}
+	}
+	trend.Summary = *summary
+	trend.Buckets = buckets
+	return trend, nil
+}
+
+func newSavingsSummary(setting savings_setting.Setting, startTimestamp int64, endTimestamp int64) *SavingsSummary {
+	return &SavingsSummary{
+		Enabled:    setting.Enabled && setting.ShowOnDashboard,
+		Source:     "official_snapshot",
+		WindowDays: savingsWindowDays(startTimestamp, endTimestamp),
+	}
+}
+
+func loadUserSavingsRows(userId int, startTimestamp int64, endTimestamp int64) ([]model.SavingsLogRow, int64, bool, error) {
+	maxRows := savings_setting.MaxSummaryLogRows()
+	total, err := model.CountUserSavingsConsumeLogs(userId, startTimestamp, endTimestamp)
+	if err != nil {
+		return nil, 0, false, err
+	}
+	if int64(maxRows) > 0 && total > int64(maxRows) {
+		return nil, total, true, nil
+	}
+	if total == 0 {
+		return []model.SavingsLogRow{}, 0, false, nil
+	}
+	rows, err := model.GetUserSavingsConsumeLogs(userId, startTimestamp, endTimestamp, maxRows)
+	if err != nil {
+		return nil, 0, false, err
+	}
+	return rows, total, false, nil
+}
+
+func newSavingsLogEstimator(setting savings_setting.Setting) savingsLogEstimator {
 	priceSnapshotAt := time.Now().Unix()
 	var localPrices map[string]savings_setting.OfficialPrice
 	if setting.RebuildLegacyLogs {
 		localPrices = buildLocalSavingsPriceMap(setting, priceSnapshotAt)
 	}
-	staleBefore := time.Now().Add(-time.Duration(setting.OfficialPriceStaleDays) * 24 * time.Hour).Unix()
-	sources := make(map[string]struct{}, 2)
-	allConfirmed := true
-	for _, row := range rows {
-		estimate, snapshotPresent := parseSavingsEstimateFromOther(row.Other)
-		calculationMode := savingsCalculationSnapshot
-		if snapshotPresent {
-			if estimate == nil {
-				continue
-			}
-		} else if setting.RebuildLegacyLogs {
-			result := rebuildHistoricalSavingsEstimate(setting, localPrices, row, priceSnapshotAt)
-			if result.Estimate == nil {
-				continue
-			}
-			estimate = result.Estimate
-			calculationMode = savingsCalculationHistorical
-		} else {
-			continue
+	return savingsLogEstimator{
+		setting:         setting,
+		localPrices:     localPrices,
+		priceSnapshotAt: priceSnapshotAt,
+	}
+}
+
+func (e savingsLogEstimator) estimate(row model.SavingsLogRow) savingsLogEstimate {
+	estimate, snapshotPresent := parseSavingsEstimateFromOther(row.Other)
+	if snapshotPresent {
+		if estimate == nil {
+			return savingsLogEstimate{SkipReason: SavingsSkipInvalidSnapshot}
 		}
-		if !addSavingsSummaryQuota(&summary.OfficialQuota, estimate.OfficialQuota) ||
-			!addSavingsSummaryQuota(&summary.ActualQuota, estimate.ActualQuota) ||
-			!addSavingsSummaryQuota(&summary.SavingsQuota, estimate.SavingsQuota) {
-			return nil, errors.New("节省金额汇总超出安全范围")
+		return savingsLogEstimate{Estimate: estimate, CalculationMode: savingsCalculationSnapshot}
+	}
+	if !e.setting.RebuildLegacyLogs {
+		return savingsLogEstimate{SkipReason: SavingsSkipLegacyMissingBaseFields}
+	}
+	result := rebuildHistoricalSavingsEstimate(e.setting, e.localPrices, row, e.priceSnapshotAt)
+	return savingsLogEstimate{
+		Estimate:        result.Estimate,
+		CalculationMode: savingsCalculationHistorical,
+		SkipReason:      result.SkipReason,
+	}
+}
+
+func newSavingsSummaryAccumulator(summary *SavingsSummary, priceSnapshotAt int64, staleDays int) savingsSummaryAccumulator {
+	return savingsSummaryAccumulator{
+		summary:         summary,
+		priceSnapshotAt: priceSnapshotAt,
+		staleBefore:     time.Now().Add(-time.Duration(staleDays) * 24 * time.Hour).Unix(),
+		sources:         make(map[string]struct{}, 2),
+		allConfirmed:    true,
+	}
+}
+
+func (a *savingsSummaryAccumulator) add(result savingsLogEstimate) error {
+	if result.Estimate == nil {
+		return nil
+	}
+	if !addSavingsSummaryQuota(&a.summary.OfficialQuota, result.Estimate.OfficialQuota) ||
+		!addSavingsSummaryQuota(&a.summary.ActualQuota, result.Estimate.ActualQuota) ||
+		!addSavingsSummaryQuota(&a.summary.SavingsQuota, result.Estimate.SavingsQuota) {
+		return errors.New("节省金额汇总超出安全范围")
+	}
+	a.summary.EstimatedRequestCount++
+	if result.CalculationMode == savingsCalculationHistorical {
+		a.summary.ReconstructedRequestCount++
+	} else {
+		a.summary.SnapshotRequestCount++
+	}
+	a.allConfirmed = a.allConfirmed && result.Estimate.OfficialConfirmed
+	a.sources[savingsSummarySource(result.Estimate.Source)] = struct{}{}
+	if result.Estimate.SourceUpdatedAt > 0 && (a.summary.SourceUpdatedAt == 0 || result.Estimate.SourceUpdatedAt < a.summary.SourceUpdatedAt) {
+		a.summary.SourceUpdatedAt = result.Estimate.SourceUpdatedAt
+	}
+	if result.Estimate.SourceUpdatedAt > 0 && result.Estimate.SourceUpdatedAt < a.staleBefore {
+		a.summary.OfficialPriceStale = true
+	}
+	return nil
+}
+
+func (a *savingsSummaryAccumulator) finish() {
+	if a.summary.EstimatedRequestCount > 0 {
+		a.summary.OfficialConfirmed = a.allConfirmed
+	}
+	if a.summary.ReconstructedRequestCount > 0 {
+		a.summary.RebuildPriceSnapshotAt = a.priceSnapshotAt
+	}
+	if len(a.sources) == 1 {
+		for source := range a.sources {
+			a.summary.Source = source
 		}
-		summary.EstimatedRequestCount++
-		if calculationMode == savingsCalculationHistorical {
-			summary.ReconstructedRequestCount++
-		} else {
-			summary.SnapshotRequestCount++
+	} else if len(a.sources) > 1 {
+		a.summary.Source = savingsSourceMixed
+	}
+	if a.summary.RequestCount > 0 {
+		a.summary.CoverageRatio = float64(a.summary.EstimatedRequestCount) / float64(a.summary.RequestCount)
+	}
+}
+
+func addSavingsTrendBucket(bucket *SavingsTrendBucket, result savingsLogEstimate) error {
+	if result.Estimate == nil {
+		return nil
+	}
+	if !addSavingsSummaryQuota(&bucket.OfficialQuota, result.Estimate.OfficialQuota) ||
+		!addSavingsSummaryQuota(&bucket.ActualQuota, result.Estimate.ActualQuota) ||
+		!addSavingsSummaryQuota(&bucket.SavingsQuota, result.Estimate.SavingsQuota) {
+		return errors.New("节省趋势汇总超出安全范围")
+	}
+	bucket.EstimatedRequestCount++
+	if result.CalculationMode == savingsCalculationHistorical {
+		bucket.ReconstructedRequestCount++
+	} else {
+		bucket.SnapshotRequestCount++
+	}
+	return nil
+}
+
+func buildSavingsTrendBuckets(startTimestamp int64, endTimestamp int64, granularity string, utcOffsetMinutes int) ([]SavingsTrendBucket, int64, error) {
+	if utcOffsetMinutes < -720 || utcOffsetMinutes > 840 {
+		return nil, 0, errors.New("时区偏移无效")
+	}
+	duration := endTimestamp - startTimestamp
+	var bucketSize int64
+	switch granularity {
+	case SavingsTrendGranularityHour:
+		bucketSize = 3600
+		if duration > savingsTrendMaxHourSeconds {
+			return nil, 0, errors.New("小时粒度最多查询 48 小时")
 		}
-		allConfirmed = allConfirmed && estimate.OfficialConfirmed
-		sources[savingsSummarySource(estimate.Source)] = struct{}{}
-		if estimate.SourceUpdatedAt > 0 && (summary.SourceUpdatedAt == 0 || estimate.SourceUpdatedAt < summary.SourceUpdatedAt) {
-			summary.SourceUpdatedAt = estimate.SourceUpdatedAt
-		}
-		if estimate.SourceUpdatedAt > 0 && estimate.SourceUpdatedAt < staleBefore {
-			summary.OfficialPriceStale = true
+	case SavingsTrendGranularityDay:
+		bucketSize = 24 * 3600
+	default:
+		return nil, 0, errors.New("趋势粒度无效")
+	}
+	if duration <= 0 {
+		return nil, 0, errors.New("时间范围无效")
+	}
+
+	offsetSeconds := int64(utcOffsetMinutes) * 60
+	firstBucketStart := ((startTimestamp + offsetSeconds) / bucketSize * bucketSize) - offsetSeconds
+	bucketCount := int((endTimestamp - firstBucketStart + bucketSize - 1) / bucketSize)
+	if bucketCount <= 0 || bucketCount > savingsTrendMaxBuckets {
+		return nil, 0, errors.New("趋势时间桶过多，请缩小时间范围")
+	}
+	buckets := make([]SavingsTrendBucket, bucketCount)
+	for i := range buckets {
+		bucketStart := firstBucketStart + int64(i)*bucketSize
+		buckets[i] = SavingsTrendBucket{
+			StartTimestamp: bucketStart,
+			EndTimestamp:   bucketStart + bucketSize,
 		}
 	}
-	if summary.EstimatedRequestCount > 0 {
-		summary.OfficialConfirmed = allConfirmed
-	}
-	if summary.ReconstructedRequestCount > 0 {
-		summary.RebuildPriceSnapshotAt = priceSnapshotAt
-	}
-	if len(sources) == 1 {
-		for source := range sources {
-			summary.Source = source
-		}
-	} else if len(sources) > 1 {
-		summary.Source = savingsSourceMixed
-	}
-	if summary.RequestCount > 0 {
-		summary.CoverageRatio = float64(summary.EstimatedRequestCount) / float64(summary.RequestCount)
-	}
-	return summary, nil
+	return buckets, bucketSize, nil
 }
 
 func addSavingsSummaryQuota(total *int64, value int) bool {
@@ -327,6 +556,17 @@ func NormalizeSavingsSummaryWindow(startTimestamp int64, endTimestamp int64) (in
 		return 0, errors.New("时间范围过大，请缩小时间范围")
 	}
 	return endTimestamp, nil
+}
+
+func NormalizeSavingsTrendWindow(startTimestamp int64, endTimestamp int64, granularity string, utcOffsetMinutes int) (int64, error) {
+	effectiveEndTimestamp, err := NormalizeSavingsSummaryWindow(startTimestamp, endTimestamp)
+	if err != nil {
+		return 0, err
+	}
+	if _, _, err := buildSavingsTrendBuckets(startTimestamp, effectiveEndTimestamp, granularity, utcOffsetMinutes); err != nil {
+		return 0, err
+	}
+	return effectiveEndTimestamp, nil
 }
 
 func ValidateSavingsSummaryWindow(startTimestamp int64, endTimestamp int64) error {
@@ -490,16 +730,18 @@ func rebuildHistoricalSavingsEstimate(setting savings_setting.Setting, localPric
 	if err := common.UnmarshalJsonStr(row.Other, &legacy); err != nil {
 		return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
 	}
-	if legacy.ModelRatio == nil || legacy.GroupRatio == nil || legacy.CompletionRatio == nil ||
-		legacy.ModelPrice == nil || legacy.CacheTokens == nil || legacy.CacheRatio == nil {
+	if legacy.GroupRatio == nil || legacy.CacheTokens == nil {
 		return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
 	}
-	if *legacy.ModelPrice != 0 || legacy.Audio || legacy.WSS || legacy.WebSearch || legacy.FileSearch ||
+	if legacy.Audio || legacy.WSS || legacy.WebSearch || legacy.FileSearch ||
 		legacy.AudioInputSeparatePrice || legacy.ImageGenerationCall {
 		return SavingsEstimateResult{SkipReason: SavingsSkipUnsupportedBillingMode}
 	}
 	mode := strings.TrimSpace(legacy.BillingMode)
-	if mode != "" && mode != billing_setting.BillingModeRatio && mode != "per_token" {
+	if mode == "" {
+		mode = billing_setting.BillingModeRatio
+	}
+	if mode != billing_setting.BillingModeRatio && mode != "per_token" && mode != billing_setting.BillingModeTieredExpr {
 		return SavingsEstimateResult{SkipReason: SavingsSkipUnsupportedBillingMode}
 	}
 	if *legacy.CacheTokens < 0 || legacy.CacheCreationTokens < 0 || legacy.CacheCreationTokens5m < 0 || legacy.CacheCreationTokens1h < 0 {
@@ -514,20 +756,11 @@ func rebuildHistoricalSavingsEstimate(setting savings_setting.Setting, localPric
 	}
 	imageTokens := 0
 	if legacy.Image {
-		if legacy.ImageOutput == nil || *legacy.ImageOutput < 0 || legacy.ImageRatio == nil {
+		if legacy.ImageOutput == nil || *legacy.ImageOutput < 0 {
 			return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
 		}
 		imageTokens = *legacy.ImageOutput
 	} else if legacy.ImageOutput != nil && *legacy.ImageOutput != 0 {
-		return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
-	}
-	if legacy.CacheCreationTokens > 0 && legacy.CacheCreationRatio == nil {
-		return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
-	}
-	if legacy.CacheCreationTokens5m > 0 && legacy.CacheCreationRatio5m == nil {
-		return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
-	}
-	if legacy.CacheCreationTokens1h > 0 && legacy.CacheCreationRatio1h == nil {
 		return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
 	}
 
@@ -548,23 +781,50 @@ func rebuildHistoricalSavingsEstimate(setting savings_setting.Setting, localPric
 	if summary.TotalTokens <= 0 {
 		return SavingsEstimateResult{SkipReason: SavingsSkipMissingUsage}
 	}
-	actualPrice := savings_setting.OfficialPrice{
-		QuotaType:            0,
-		ModelRatio:           legacy.ModelRatio,
-		CompletionRatio:      legacy.CompletionRatio,
-		CacheRatio:           legacy.CacheRatio,
-		CreateCacheRatio:     legacy.CacheCreationRatio,
-		CacheCreation5mRatio: legacy.CacheCreationRatio5m,
-		CacheCreation1hRatio: legacy.CacheCreationRatio1h,
-		ImageRatio:           legacy.ImageRatio,
-		BillingMode:          billing_setting.BillingModeRatio,
-	}
-	actualQuota, skipReason := calculateSavingsTextQuota(summary, actualPrice, *legacy.GroupRatio)
-	if skipReason != "" {
-		return SavingsEstimateResult{SkipReason: skipReason}
-	}
-	if actualQuota != row.Quota {
-		return SavingsEstimateResult{SkipReason: SavingsSkipLegacyActualQuotaMismatch}
+	actualQuota := row.Quota
+	if mode == billing_setting.BillingModeTieredExpr {
+		exprBytes, err := base64.StdEncoding.DecodeString(legacy.ExprB64)
+		if err != nil || len(exprBytes) == 0 {
+			return SavingsEstimateResult{SkipReason: SavingsSkipLegacyInvalidSnapshot}
+		}
+		rebuiltQuota, skipReason := calculateSavingsTieredTextQuota(summary, string(exprBytes), *legacy.GroupRatio)
+		if skipReason != "" {
+			return SavingsEstimateResult{SkipReason: skipReason}
+		}
+		if rebuiltQuota != row.Quota {
+			return SavingsEstimateResult{SkipReason: SavingsSkipLegacyActualQuotaMismatch}
+		}
+	} else {
+		if legacy.ModelRatio == nil || legacy.CompletionRatio == nil || legacy.ModelPrice == nil || legacy.CacheRatio == nil {
+			return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
+		}
+		if *legacy.ModelPrice != 0 && *legacy.ModelPrice != -1 {
+			return SavingsEstimateResult{SkipReason: SavingsSkipUnsupportedBillingMode}
+		}
+		if (legacy.CacheCreationTokens > 0 && legacy.CacheCreationRatio == nil) ||
+			(legacy.CacheCreationTokens5m > 0 && legacy.CacheCreationRatio5m == nil) ||
+			(legacy.CacheCreationTokens1h > 0 && legacy.CacheCreationRatio1h == nil) ||
+			(legacy.Image && legacy.ImageRatio == nil) {
+			return SavingsEstimateResult{SkipReason: SavingsSkipLegacyMissingBaseFields}
+		}
+		actualPrice := savings_setting.OfficialPrice{
+			QuotaType:            0,
+			ModelRatio:           legacy.ModelRatio,
+			CompletionRatio:      legacy.CompletionRatio,
+			CacheRatio:           legacy.CacheRatio,
+			CreateCacheRatio:     legacy.CacheCreationRatio,
+			CacheCreation5mRatio: legacy.CacheCreationRatio5m,
+			CacheCreation1hRatio: legacy.CacheCreationRatio1h,
+			ImageRatio:           legacy.ImageRatio,
+			BillingMode:          billing_setting.BillingModeRatio,
+		}
+		rebuiltQuota, skipReason := calculateSavingsTextQuota(summary, actualPrice, *legacy.GroupRatio)
+		if skipReason != "" {
+			return SavingsEstimateResult{SkipReason: skipReason}
+		}
+		if rebuiltQuota != row.Quota {
+			return SavingsEstimateResult{SkipReason: SavingsSkipLegacyActualQuotaMismatch}
+		}
 	}
 
 	price, matchedModel, skipReason := matchSavingsOfficialPriceCandidates(
@@ -597,7 +857,7 @@ func rebuildHistoricalSavingsEstimate(setting savings_setting.Setting, localPric
 		PriceFingerprint:  price.PriceFingerprint,
 		OfficialConfirmed: price.OfficialConfirmed,
 		MatchedModel:      matchedModel,
-		PricingMode:       "per_token",
+		PricingMode:       savingsPricingMode(price),
 		CalculationMode:   savingsCalculationHistorical,
 		Estimated:         true,
 	}}
@@ -640,7 +900,92 @@ func savingsModelCandidates(relayInfo *relaycommon.RelayInfo, modelName string) 
 }
 
 func calculateOfficialTextQuota(summary textQuotaSummary, price savings_setting.OfficialPrice) (int, string) {
+	if strings.TrimSpace(price.BillingMode) == billing_setting.BillingModeTieredExpr {
+		return calculateSavingsTieredTextQuota(summary, price.BillingExpr, 1)
+	}
 	return calculateSavingsTextQuota(summary, price, 1)
+}
+
+func savingsPricingMode(price savings_setting.OfficialPrice) string {
+	if strings.TrimSpace(price.BillingMode) == billing_setting.BillingModeTieredExpr {
+		return billing_setting.BillingModeTieredExpr
+	}
+	return "per_token"
+}
+
+func calculateSavingsTieredTextQuota(summary textQuotaSummary, expr string, groupRatio float64) (int, string) {
+	expr = strings.TrimSpace(expr)
+	if expr == "" || strings.Contains(expr, "|||") || !validSavingsRatio(groupRatio, true) {
+		return 0, SavingsSkipUnsupportedBillingMode
+	}
+	usedVars := billingexpr.UsedVars(expr)
+	if usedVars == nil {
+		return 0, SavingsSkipInvalidSnapshot
+	}
+	for _, name := range []string{"header", "param", "has", "hour", "minute", "weekday", "month", "day", "img_o", "ao"} {
+		if usedVars[name] {
+			return 0, SavingsSkipUnsupportedBillingMode
+		}
+	}
+
+	promptTokens := float64(summary.PromptTokens)
+	completionTokens := float64(summary.CompletionTokens)
+	cacheTokens := float64(summary.CacheTokens)
+	cacheCreationTokens := float64(summary.CacheCreationTokens)
+	cacheCreationTokens1h := float64(0)
+	inputLength := promptTokens
+	if summary.IsClaudeUsageSemantic {
+		if summary.CacheCreationTokens5m > 0 || summary.CacheCreationTokens1h > 0 {
+			cacheCreationTokens = float64(summary.CacheCreationTokens5m)
+			cacheCreationTokens1h = float64(summary.CacheCreationTokens1h)
+		}
+		inputLength += cacheTokens + cacheCreationTokens + cacheCreationTokens1h
+	} else {
+		if usedVars["cr"] {
+			promptTokens -= cacheTokens
+		}
+		if usedVars["cc"] {
+			promptTokens -= cacheCreationTokens
+		}
+		if usedVars["img"] {
+			promptTokens -= float64(summary.ImageTokens)
+		}
+		if usedVars["ai"] {
+			promptTokens -= float64(summary.AudioTokens)
+		}
+	}
+	if promptTokens < 0 {
+		promptTokens = 0
+	}
+	if completionTokens < 0 {
+		completionTokens = 0
+	}
+
+	snapshot := billingexpr.BillingSnapshot{
+		BillingMode:  billing_setting.BillingModeTieredExpr,
+		ExprString:   expr,
+		ExprHash:     billingexpr.ExprHashString(expr),
+		GroupRatio:   groupRatio,
+		QuotaPerUnit: common.QuotaPerUnit,
+		ExprVersion:  billingexpr.ExprVersion(expr),
+	}
+	result, err := billingexpr.ComputeTieredQuota(&snapshot, billingexpr.TokenParams{
+		P:    promptTokens,
+		C:    completionTokens,
+		Len:  inputLength,
+		CR:   cacheTokens,
+		CC:   cacheCreationTokens,
+		CC1h: cacheCreationTokens1h,
+		Img:  float64(summary.ImageTokens),
+		AI:   float64(summary.AudioTokens),
+	})
+	if err != nil || result.ActualQuotaAfterGroup < 0 {
+		return 0, SavingsSkipInvalidSnapshot
+	}
+	if result.Clamp != nil {
+		return 0, SavingsSkipQuotaSaturated
+	}
+	return result.ActualQuotaAfterGroup, ""
 }
 
 func calculateSavingsTextQuota(summary textQuotaSummary, price savings_setting.OfficialPrice, groupRatio float64) (int, string) {

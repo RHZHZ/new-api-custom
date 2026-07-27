@@ -47,9 +47,9 @@
 - 不承诺节省金额与任何官方账单逐分一致。
 - 不抓取或实时校验所有上游官网价格。
 - 不把“官方定价”用于实际扣费。
-- 不在第一阶段支持所有复杂任务类、图片、音频、视频和特殊表达式的完整官方价对齐。
+- 不在第一阶段支持所有复杂任务类、图片、音频、视频和依赖请求上下文的特殊表达式完整官方价对齐。
 - 不在第一阶段展示累计节省金额；累计值依赖日志保留策略，需等聚合表或汇总字段落地后再承诺。
-- 不在第一阶段统计任务类、固定按次类、动态表达式类和会产生后续退款/重算的异步请求。
+- 不在第一阶段统计任务类、固定按次类、无法仅凭日志 token 确定性复算的动态表达式和会产生后续退款/重算的异步请求。
 - 不新增生产依赖，不引入外部价格 SaaS。
 - 不修改受保护的项目品牌、许可、归属、包名和元数据。
 
@@ -169,18 +169,18 @@ savings_ratio = savings_quota / estimated_official_quota
 
 旧日志可直接复用的字段包括：`created_at`、`model_name`、`prompt_tokens`、`completion_tokens`、`quota` 和 `other`。其中 `quota` 是当时真实最终扣费。分组信息不参与官方价计算，MVP 汇总查询不读取数据库保留字 `group`。
 
-历史回算第一阶段只支持满足以下确定性白名单的普通文本 token 计费：
+历史回算第一阶段只支持满足以下确定性白名单的普通文本 token 计费和阶梯表达式计费：
 
 - `prompt_tokens + completion_tokens > 0`。
-- 本地官方价是 `QuotaType=0`，且 `BillingMode` 为空、`ratio` 或 `per_token`。
+- 本地官方价是 `QuotaType=0`，且 `BillingMode` 为空、`ratio`、`per_token` 或可确定性执行的 `tiered_expr`。
 - `model.GetPricing()` 只包含当前可用模型；已下架或不再启用的历史模型没有本地匹配时，只能通过 `official_prices` 覆盖，否则跳过。
-- `other` 必须是合法 JSON 对象，并包含文本日志稳定基础字段：`model_ratio`、`group_ratio`、`completion_ratio`、`model_price`、`cache_tokens`、`cache_ratio`。缺少任一字段即跳过。
-- `model_price` 必须为 `0`，且 `billing_mode` 不能为 `tiered_expr`。
+- `other` 必须是合法 JSON 对象，并至少包含 `group_ratio`、`cache_tokens`。普通倍率日志还必须包含 `model_ratio`、`completion_ratio`、`model_price`、`cache_ratio`；`model_price` 只接受项目历史上表示倍率计费的 `0` 或 `-1`。
+- `billing_mode=tiered_expr` 的历史日志必须包含有效 `expr_b64`。系统使用日志内冻结表达式、token 明细和原 `group_ratio` 复算实际 quota；表达式包含 request rules、header、param、时间条件或日志未保存的输出图片/音频维度时跳过。
 - 命中 `audio`、`ws`、`web_search`、`file_search`、`audio_input_seperate_price` 或 `image_generation_call` 标记时跳过。
 - 缓存写入从 `cache_creation_tokens`、`cache_creation_tokens_5m`、`cache_creation_tokens_1h` 读取；字段不存在按 `0` 处理，但存在时必须是非负整数。
 - 图片 token 只有在 `image=true`、`image_output` 为非负整数且官方价格存在合法 `ImageRatio` 时参与回算，否则跳过。
 - Claude/OpenAI token 语义只依据 `usage_semantic` 和 `claude` 明确字段判断，不根据模型名猜测。
-- 使用日志内实际倍率和 token 明细先复算当时 `quota`；必须复用现有 decimal 计算、`common.QuotaFromDecimalChecked`、零值和最小 1 quota 语义。复算值必须与日志 `quota` 完全一致。该校验可以识别未记录的附加倍率、工具费或旧日志语义差异；不一致时返回 `legacy_actual_quota_mismatch` 并跳过。
+- 普通倍率日志使用日志内实际倍率和 token 明细复算当时 `quota`；阶梯日志复用 `pkg/billingexpr` 执行冻结表达式。两条路径都必须复用项目统一舍入与饱和规则，且复算值必须与日志 `quota` 完全一致。该校验可以识别未记录的附加倍率、工具费或旧日志语义差异；不一致时返回 `legacy_actual_quota_mismatch` 并跳过。
 - 任何字段非法、quota 饱和或模型匹配不确定时跳过，不用简化公式放大节省金额。
 
 历史回算不写回日志或数据库，避免制造伪历史快照。接口必须返回 `reconstructed_request_count`，前端在该值大于 0 时显示“含按当前官方定价回算的历史消费”。
@@ -395,15 +395,13 @@ official_quota = official_model_price * common.QuotaPerUnit
 
 #### 动态表达式模型
 
-MVP 默认跳过动态表达式模型。动态表达式需要冻结 request body、headers、表达式版本、request rules 和 token 归一化上下文，第一阶段不承担该复杂度。
-
-后续阶段如果官方定价也是 `tiered_expr`，可以复用 `pkg/billingexpr` 计算：
+MVP 支持仅依赖已保存 token 维度的确定性 `tiered_expr`，复用 `pkg/billingexpr` 并以 `groupRatio=1` 计算官方基准：
 
 ```text
 official_quota = official_expr_result / 1_000_000 * common.QuotaPerUnit
 ```
 
-若当前模型实际使用动态表达式，但没有官方定价表达式，则跳过该请求的节省估算。不要用简单 input/output 比率猜测复杂表达式。
+新请求可直接使用模型广场官方表达式生成快照。历史请求还必须使用日志 `expr_b64` 复算并验证实际 `quota`。依赖 request body、headers、时间条件、request rules 或日志未保存 token 维度的表达式仍跳过；没有官方定价表达式时也跳过，不用简单 input/output 比率猜测复杂表达式。
 
 ### 6.7 服务边界
 
@@ -692,6 +690,10 @@ RAPI 已帮你节省约 ¥32.18
 
 组件中使用 `useTranslation()` 和 `t('English key')`。长语言下金额、百分比和说明允许换行，不固定高度。
 
+### 8.7 节省趋势图扩展
+
+用量分析中的“官方价估算 vs 已覆盖请求实际消费”趋势图采用独立设计，详见 `docs/user-savings-trend-design.md`。该扩展继续复用本设计的价格来源、快照优先、历史回算、覆盖率和受检 quota 汇总口径。
+
 ## 9. 边界与跳过策略
 
 以下情况不计算节省金额：
@@ -755,7 +757,7 @@ MVP 只保留以下三个轻量指标或结构化日志，避免为展示功能�
 5. 扩展汇总日志查询字段，并对缺少快照的已有普通文本消费执行受限回算。
 6. 为价格快照增加稳定 `price_fingerprint`，并在汇总请求内预构建价格 Map。
 7. 扩展用户节省汇总接口，返回快照数量、回算数量、覆盖率和历史回算价格快照时间。
-8. 增加后端单元测试，覆盖来源优先级、历史回算、实际 quota 复算校验、价格指纹、细节不足跳过、负节省、动态表达式跳过和受检汇总。
+8. 增加后端单元测试，覆盖来源优先级、普通倍率与阶梯表达式历史回算、实际 quota 复算校验、价格指纹、动态请求表达式跳过、负节省和受检汇总。
 
 前端：
 
@@ -878,7 +880,7 @@ MVP 只保留以下三个轻量指标或结构化日志，避免为展示功能�
 - 用户概览能展示滚动近 24 小时估算节省与覆盖率，页面持续打开时窗口仍会向前滚动。
 - `official_prices` 为空时，只要本地价格官方声明有效，模型广场已有模型即可参与估算。
 - 功能上线前已有的普通文本消费记录可进入汇总，并单独返回回算数量。
-- 历史日志只有在基础字段完整且日志内倍率能精确复算实际 `quota` 时才纳入，无法证明安全时跳过。
+- 历史日志只有在基础字段完整且日志内倍率或冻结阶梯表达式能精确复算实际 `quota` 时才纳入，无法证明安全时跳过。
 - MVP 不展示累计节省，不在钱包页展示节省金额。
 - 官方定价变更后，已有 `savings_estimate` 的日志金额保持不变；无快照旧日志按当前价格重新回算并明确标识。
 - 无官方定价或不可安全估算的请求不会产生误导展示。
@@ -912,7 +914,7 @@ MVP 只保留以下三个轻量指标或结构化日志，避免为展示功能�
 - 新日志写入时固化快照，解决上线后价格漂移问题。
 - 旧日志受限回算并单独计数，解决已有消费无法展示的问题。
 - 用户侧短窗口聚合，解决 MVP 性能和日志保留不确定性问题。
-- 未确认、无 usage、动态表达式、异步退款链路先跳过，避免误导用户。
+- 未确认、无 usage、依赖请求上下文的动态表达式、异步退款链路先跳过，避免误导用户。
 - 前端按估算展示并在不完整数据时隐藏金额，降低财务误解风险。
 
 当前方案刻意不做的项：
@@ -923,4 +925,4 @@ MVP 只保留以下三个轻量指标或结构化日志，避免为展示功能�
 - 不在运行时抓取官网或第三方接口；价格只从当前实例本地快照读取。
 - 不把负节省展示给用户。该功能目标是价值感知，不是价格争议提示。
 
-总体判断：核心闭环已经覆盖本地官方价、新日志快照、已有消费回算、来源声明、查询边界和 UI 解释。历史回算结果随当前价格变化是有意接受的限制，必须通过 `reconstructed_request_count` 和文案显式披露。若第一阶段再加入数据库回填、任务类、动态表达式或累计金额，就属于过当。
+总体判断：核心闭环已经覆盖本地官方价、新日志快照、已有消费回算、确定性阶梯表达式、来源声明、查询边界和 UI 解释。历史回算结果随当前价格变化是有意接受的限制，必须通过 `reconstructed_request_count` 和文案显式披露。若第一阶段再加入数据库回填、任务类、依赖请求上下文的动态表达式或累计金额，就属于过当。
