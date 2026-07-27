@@ -55,6 +55,14 @@ export function ResetPasswordConfirm({
   } = useCountdown({ initialSeconds: 30 })
 
   const isValidResetLink = Boolean(email && token)
+  let primaryActionLabel = t('auth.resetPasswordConfirm.confirm')
+  if (newPassword) {
+    primaryActionLabel = t('auth.resetPasswordConfirm.backToLogin')
+  } else if (isActive) {
+    primaryActionLabel = t('auth.resetPasswordConfirm.retry', {
+      seconds: secondsLeft,
+    })
+  }
 
   async function handleSubmit() {
     if (!isValidResetLink || !email || !token) {
@@ -133,6 +141,7 @@ export function ResetPasswordConfirm({
             <Input
               id='email'
               type='email'
+              className='h-12 text-base md:text-[15px]'
               value={email || ''}
               disabled
               placeholder={t('Waiting for email...')}
@@ -147,12 +156,13 @@ export function ResetPasswordConfirm({
                   id='password'
                   value={newPassword}
                   disabled
-                  className='font-mono'
+                  className='h-12 font-mono text-base md:text-[15px]'
                 />
                 <Button
                   type='button'
                   size='icon'
                   variant='outline'
+                  className='size-12'
                   onClick={handleCopy}
                 >
                   {copied ? (
@@ -169,7 +179,7 @@ export function ResetPasswordConfirm({
           )}
 
           <Button
-            className='w-full'
+            className='h-12 w-full'
             onClick={
               newPassword
                 ? () => navigate({ to: '/sign-in', replace: true })
@@ -179,13 +189,7 @@ export function ResetPasswordConfirm({
               newPassword ? false : loading || isActive || !isValidResetLink
             }
           >
-            {newPassword
-              ? t('auth.resetPasswordConfirm.backToLogin')
-              : isActive
-                ? t('auth.resetPasswordConfirm.retry', {
-                    seconds: secondsLeft,
-                  })
-                : t('auth.resetPasswordConfirm.confirm')}
+            {primaryActionLabel}
           </Button>
 
           {!newPassword && (

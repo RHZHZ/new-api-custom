@@ -103,8 +103,8 @@ function FilterChip(props: {
       className={cn(
         'group inline-flex max-w-full items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-all',
         props.active
-          ? 'border-foreground/30 bg-foreground/5 text-foreground shadow-sm'
-          : 'border-border/70 bg-background text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground'
+          ? 'border-primary/40 bg-primary/10 text-primary'
+          : 'border-border/70 bg-card text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground'
       )}
       title={props.option.label}
     >
@@ -117,7 +117,7 @@ function FilterChip(props: {
           className={cn(
             'rounded-md px-1.5 py-0.5 text-[12px]',
             props.active
-              ? 'bg-background text-foreground'
+              ? 'bg-card text-primary'
               : 'bg-muted text-muted-foreground'
           )}
         >
@@ -246,7 +246,9 @@ export function PricingSidebar(props: PricingSidebarProps) {
   ]
 
   return (
-    <aside className={cn('rounded-xl border p-3', props.className)}>
+    // Open filter rail (16.7): sections separated by thin rules — no
+    // rounded card wrapper around the whole rail.
+    <aside className={cn('xl:pr-5', props.className)}>
       <div className='mb-2.5 flex items-center justify-between gap-2'>
         <div>
           <h2 className='text-foreground text-sm font-bold'>{t('Filter')}</h2>

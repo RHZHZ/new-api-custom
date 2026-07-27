@@ -99,14 +99,14 @@ export function ProfileSecurityCard({
         iconTone='success'
         disableHoverEffect
       >
-        <div className='grid grid-cols-1 gap-2.5 sm:gap-3 md:grid-cols-3'>
+        <div className='grid overflow-hidden rounded-md border md:grid-cols-3'>
           {securityActions.map((item) => (
             <button
               key={item.title}
               type='button'
               onClick={item.action}
-              className={`flex items-center gap-3 rounded-lg border p-3 text-left md:flex-col md:gap-2 md:p-4 md:text-center ${
-                item.variant === 'destructive' ? 'border-destructive/30' : ''
+              className={`flex min-h-16 items-center gap-3 border-b p-3 text-left last:border-b-0 md:flex-col md:gap-2 md:border-r md:border-b-0 md:p-4 md:text-center md:last:border-r-0 ${
+                item.variant === 'destructive' ? 'text-destructive' : ''
               }`}
             >
               <IconBadge tone='neutral' size='sm'>

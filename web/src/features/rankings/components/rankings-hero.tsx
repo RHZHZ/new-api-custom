@@ -44,12 +44,13 @@ export function RankingsHero(props: RankingsHeroProps) {
   return (
     <section className='space-y-5'>
       <div className='space-y-2'>
-        <h1 className='text-[clamp(1.75rem,4vw,2.5rem)] leading-[1.15] font-bold tracking-tight'>
-          {t('Rankings')}
+        {/* Fixed breakpoint type scale (16.5): no vw/clamp scaling. */}
+        <h1 className='text-[28px] leading-9 font-bold tracking-tight md:text-4xl md:leading-[44px]'>
+          {t('Usage Trends')}
         </h1>
-        <p className='text-muted-foreground/80 max-w-2xl text-sm'>
+        <p className='text-muted-foreground max-w-2xl text-[15px] leading-6'>
           {t(
-            'Discover the most-used models and rising vendors on the platform, updated from live usage data.'
+            'Model and vendor usage trends based on real request data on this platform.'
           )}
         </p>
       </div>

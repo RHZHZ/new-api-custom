@@ -48,11 +48,11 @@ import {
 } from '@/components/ui/sidebar'
 
 import { checkIsActive } from '../lib/url-utils'
-import {
-  type NavCollapsible,
-  type NavChatPresets,
-  type NavLink,
-  type NavGroup as NavGroupProps,
+import type {
+  NavChatPresets,
+  NavCollapsible,
+  NavGroup as NavGroupProps,
+  NavLink,
 } from '../types'
 import { ChatPresetsItem } from './chat-presets-item'
 
@@ -65,8 +65,8 @@ export function NavGroup({ title, items }: NavGroupProps) {
   const href = useLocation({ select: (location) => location.href })
 
   return (
-    <SidebarGroup className='px-2 py-1'>
-      <SidebarGroupLabel className='text-muted-foreground/70 px-2 text-[11px] font-medium tracking-wider uppercase'>
+    <SidebarGroup className='px-2 py-1 first:pt-0'>
+      <SidebarGroupLabel className='text-sidebar-foreground/45 h-7 px-2 text-[11px] leading-5 font-medium'>
         {title}
       </SidebarGroupLabel>
       <SidebarMenu>

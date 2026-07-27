@@ -16,74 +16,78 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Settings, Zap, BarChart3 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { AnimateInView } from '@/components/animate-in-view'
 
 export function HowItWorks() {
   const { t } = useTranslation()
-
   const steps = [
     {
-      num: '1',
-      title: t('Configure'),
-      desc: t(
-        'Add your API keys, set up channels and configure access permissions'
-      ),
-      icon: <Settings className='size-6' strokeWidth={1.5} />,
+      number: '01',
+      title: t('Create API Key'),
+      description: t('Create an API key to unlock the real request'),
+      result: t('API Key created successfully'),
     },
     {
-      num: '2',
-      title: t('Connect'),
-      desc: t(
-        'Connect through OpenAI, Claude, Gemini, and other compatible API routes'
+      number: '02',
+      title: t('Switch the endpoint'),
+      description: t(
+        'Use our unified OpenAI-compatible endpoint in your applications'
       ),
-      icon: <Zap className='size-6' strokeWidth={1.5} />,
+      result: t('Applications connected'),
     },
     {
-      num: '3',
-      title: t('Monitor'),
-      desc: t('Track usage, costs and performance with real-time analytics'),
-      icon: <BarChart3 className='size-6' strokeWidth={1.5} />,
+      number: '03',
+      title: t('Request'),
+      description: t('Choose a supported model and send your first request.'),
+      result: t('Request completed'),
     },
   ]
 
   return (
-    <section className='border-border/40 relative z-10 border-t px-6 py-24 md:py-32'>
-      <div className='mx-auto max-w-6xl'>
-        <AnimateInView className='mb-16 text-center md:mb-20'>
-          <p className='text-muted-foreground mb-3 text-xs font-medium tracking-widest uppercase'>
-            {t('How It Works')}
-          </p>
-          <h2 className='text-2xl font-bold tracking-tight md:text-3xl'>
-            {t('Three steps to get started')}
-          </h2>
+    <section
+      aria-labelledby='enterprise-delivery-title'
+      className='bg-[#0D271C] px-5 py-[72px] text-white md:px-10 md:py-[112px]'
+    >
+      <div className='mx-auto max-w-[1248px]'>
+        <AnimateInView className='grid gap-8 border-t border-white/18 pt-5 md:grid-cols-[180px_1fr]'>
+          <p className='text-[10px] font-semibold text-[#93D2AD]'>03 / API</p>
+          <div>
+            <h2
+              id='enterprise-delivery-title'
+              className='max-w-4xl text-3xl leading-[1.1] font-semibold md:text-[52px]'
+            >
+              {t('Three steps to your first model request')}
+            </h2>
+            <p className='mt-6 max-w-2xl text-base leading-8 text-white/56'>
+              {t('Start with the familiar OpenAI-compatible workflow.')}
+            </p>
+          </div>
         </AnimateInView>
 
-        <div className='grid gap-8 md:grid-cols-3 md:gap-12'>
-          {steps.map((step, i) => (
+        <ol className='mt-16 border-l border-white/18 md:grid md:grid-cols-3 md:border-t md:border-l-0'>
+          {steps.map((step, index) => (
             <AnimateInView
-              key={step.num}
-              delay={i * 150}
-              animation='fade-up'
-              className='relative flex flex-col items-center text-center'
+              key={step.number}
+              delay={index * 100}
+              as='li'
+              className='relative min-h-64 px-7 pb-12 last:pb-0 md:border-r md:border-white/10 md:px-8 md:pt-8 md:pb-0 md:first:pl-0 md:last:border-r-0 md:last:pr-0'
             >
-              <div className='relative mb-6'>
-                <div className='text-muted-foreground border-border/50 bg-muted/30 flex size-16 items-center justify-center rounded-2xl border transition-colors'>
-                  {step.icon}
-                </div>
-                <div className='bg-foreground text-background absolute -top-2 -right-2 flex size-6 items-center justify-center rounded-full text-xs font-bold'>
-                  {step.num}
-                </div>
-              </div>
-              <h3 className='mb-2 text-base font-semibold'>{step.title}</h3>
-              <p className='text-muted-foreground max-w-[240px] text-sm leading-relaxed'>
-                {step.desc}
+              <span className='absolute top-0 -left-[4px] size-2 bg-[#93D2AD] md:-top-[4px] md:left-8 first:md:left-0' />
+              <span className='text-xs font-semibold text-white/40 tabular-nums'>
+                {step.number}
+              </span>
+              <h3 className='mt-8 text-xl font-semibold'>{step.title}</h3>
+              <p className='mt-4 max-w-sm text-sm leading-7 text-white/52'>
+                {step.description}
+              </p>
+              <p className='mt-8 inline-flex border border-[#93D2AD]/35 px-3 py-2 text-[10px] font-semibold text-[#93D2AD]'>
+                {step.result}
               </p>
             </AnimateInView>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   )

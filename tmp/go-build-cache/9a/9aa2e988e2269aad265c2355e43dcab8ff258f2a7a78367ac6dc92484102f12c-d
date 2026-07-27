@@ -1,0 +1,6 @@
+./media.go
+./request_compat.go
+./request_registry.go
+./response_compat.go
+./response_registry.go
+./text_converter_registry.go

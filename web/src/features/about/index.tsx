@@ -32,13 +32,17 @@ function EmptyAboutState() {
   const currentYear = new Date().getFullYear()
 
   return (
+    // Small icon + explanation + preserved project links (16.7) — no
+    // oversized decorative glyph.
     <div className='flex min-h-[60vh] items-center justify-center p-8'>
-      <div className='max-w-2xl space-y-6 text-center'>
+      <div className='max-w-xl space-y-5 text-center'>
         <div className='flex justify-center'>
-          <Construction className='text-muted-foreground h-24 w-24' />
+          <div className='bg-muted text-muted-foreground flex size-10 items-center justify-center rounded-md'>
+            <Construction className='size-5' />
+          </div>
         </div>
         <div className='space-y-2'>
-          <h2 className='text-2xl font-bold'>{t('No About Content Set')}</h2>
+          <h2 className='text-xl font-bold'>{t('No About Content Set')}</h2>
           <p className='text-muted-foreground'>
             {t(
               'The administrator has not configured any about content yet. You can set it in the settings page, supporting HTML or URL.'
@@ -127,7 +131,7 @@ export function About() {
   if (isLoading) {
     return (
       <PublicLayout>
-        <div className='mx-auto flex max-w-4xl flex-col gap-4 py-12'>
+        <div className='mx-auto flex max-w-[800px] flex-col gap-4 py-12'>
           <Skeleton className='h-8 w-[45%]' />
           <Skeleton className='h-4 w-full' />
           <Skeleton className='h-4 w-[90%]' />
@@ -148,12 +152,16 @@ export function About() {
   if (isUrl) {
     return (
       <PublicLayout showMainContainer={false}>
-        <iframe
-          src={rawContent}
-          className='h-[calc(100vh-3.5rem)] w-full border-0'
-          title={t('About')}
-          sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts'
-        />
+        {/* The outer shell keeps the fixed public header's real height;
+            the iframe viewport is 100dvh minus that header (16.7). */}
+        <div className='pt-16 md:pt-[72px]'>
+          <iframe
+            src={rawContent}
+            className='h-[calc(100dvh-4rem)] w-full border-0 md:h-[calc(100dvh-4.5rem)]'
+            title={t('About')}
+            sandbox='allow-forms allow-popups allow-popups-to-escape-sandbox allow-scripts'
+          />
+        </div>
       </PublicLayout>
     )
   }
@@ -161,19 +169,22 @@ export function About() {
   if (contentIsHtml) {
     return (
       <PublicLayout showMainContainer={false}>
-        <RichContent
-          mode='html'
-          htmlVariant='isolated'
-          content={rawContent}
-          className='prose-neutral dark:prose-invert max-w-none'
-        />
+        <div className='pt-16 md:pt-[72px]'>
+          <RichContent
+            mode='html'
+            htmlVariant='isolated'
+            content={rawContent}
+            className='prose-neutral dark:prose-invert max-w-none'
+          />
+        </div>
       </PublicLayout>
     )
   }
 
   return (
     <PublicLayout>
-      <div className='mx-auto max-w-6xl px-4 py-8'>
+      {/* Markdown reading column at 760–820px (16.7). */}
+      <div className='mx-auto max-w-[800px] px-4 py-8'>
         <RichContent
           mode='markdown'
           content={rawContent}

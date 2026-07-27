@@ -10,6 +10,7 @@
     "typecheck": "tsgo -b",
     "lint": "oxlint -c .oxlintrc.json .",
     "lint:fix": "oxlint -c .oxlintrc.json . --fix",
+    "test:auth": "node --experimental-strip-types --test \"src/features/auth/__tests__/auth-layout.test.ts\" \"src/features/auth/sign-in/__tests__/login-error.test.ts\" \"src/routes/__tests__/-root-devtools-visibility.test.ts\"",
     "preview": "rsbuild preview",
     "format:check": "node scripts/format-with-protected-headers.mjs --check",
     "format": "node scripts/format-with-protected-headers.mjs --write",

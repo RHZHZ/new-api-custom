@@ -98,31 +98,43 @@ export function Stats(_props: StatsProps) {
   const { t } = useTranslation()
 
   const stats: StatItem[] = [
-    { end: 50, suffix: '+', label: t('upstream services integrated') },
-    { end: 100, suffix: '+', label: t('model billing support') },
+    { end: 50, suffix: '+', label: t('available service channels') },
+    { end: 100, suffix: '+', label: t('supported billing models') },
     { end: 50, suffix: '+', label: t('compatible API routes') },
-    { end: 10, suffix: '+', label: t('scheduling controls') },
+    { end: 10, suffix: '+', label: t('reliability controls') },
   ]
 
   return (
-    <div className='border-border/40 bg-muted/10 relative z-10 border-y'>
-      <div className='mx-auto max-w-6xl px-6 py-10 md:py-12'>
-        <div className='grid grid-cols-2 gap-8 md:grid-cols-4 md:gap-12'>
-          {stats.map((s) => (
+    <section
+      aria-label={t('Platform coverage')}
+      className='border-b border-black bg-[#101411] text-white'
+    >
+      <div className='mx-auto max-w-[1440px] px-5 md:px-10 lg:px-16 xl:px-24'>
+        <div className='grid grid-cols-2 md:grid-cols-4'>
+          {stats.map((s, index) => (
             <div
               key={s.label}
-              className='flex flex-col items-center text-center'
+              className='flex min-h-36 flex-col justify-between border-r border-b border-white/12 px-3 py-6 even:border-r-0 md:min-h-40 md:border-b-0 md:px-7 md:last:border-r-0 md:even:border-r'
             >
-              <span className='text-2xl font-bold tracking-tight md:text-3xl'>
-                <Counter end={s.end} suffix={s.suffix} decimals={s.decimals} />
+              <span className='text-[9px] font-semibold text-white/32 tabular-nums'>
+                0{index + 1}
               </span>
-              <span className='text-muted-foreground mt-1.5 text-xs'>
-                {s.label}
-              </span>
+              <div>
+                <span className='text-3xl font-semibold text-[#93D2AD] md:text-4xl'>
+                  <Counter
+                    end={s.end}
+                    suffix={s.suffix}
+                    decimals={s.decimals}
+                  />
+                </span>
+                <span className='mt-2 block text-xs leading-relaxed text-white/48'>
+                  {s.label}
+                </span>
+              </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   )
 }

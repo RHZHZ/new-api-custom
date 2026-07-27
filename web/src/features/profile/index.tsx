@@ -16,11 +16,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
+
 import { Main } from '@/components/layout'
-import {
-  CardStaggerContainer,
-  CardStaggerItem,
-} from '@/components/page-transition'
 import { useStatus } from '@/hooks/use-status'
 import { useAuthStore } from '@/stores/auth-store'
 
@@ -34,8 +33,42 @@ import { ProfileSettingsCard } from './components/profile-settings-card'
 import { SidebarModulesCard } from './components/sidebar-modules-card'
 import { TwoFACard } from './components/two-fa-card'
 import { useProfile } from './hooks'
+import {
+  profileSectionIds,
+  profileWorkbenchLayoutClasses,
+} from './profile-layout'
+
+type ProfileSectionGroupProps = {
+  id: string
+  title: string
+  children: ReactNode
+}
+
+function ProfileSectionGroup(props: ProfileSectionGroupProps) {
+  const titleId = `${props.id}-title`
+
+  return (
+    <section aria-labelledby={titleId}>
+      <h2 id={titleId} className='mb-2 text-sm font-semibold'>
+        {props.title}
+      </h2>
+      <div className={profileWorkbenchLayoutClasses.sectionStack}>
+        {props.children}
+      </div>
+    </section>
+  )
+}
+
+function ProfileSectionItem(props: { children: ReactNode }) {
+  return (
+    <div className={profileWorkbenchLayoutClasses.sectionItem}>
+      {props.children}
+    </div>
+  )
+}
 
 export function Profile() {
+  const { t } = useTranslation()
   const { profile, loading, refreshProfile } = useProfile()
   const { status } = useStatus()
   const permissions = useAuthStore((s) => s.auth.user?.permissions)
@@ -49,43 +82,82 @@ export function Profile() {
 
   return (
     <Main>
-      <div className='min-h-0 flex-1 overflow-auto px-3 py-3 sm:px-4 sm:py-6'>
-        <CardStaggerContainer className='mx-auto flex w-full max-w-7xl flex-col gap-4 sm:gap-6'>
-          <CardStaggerItem>
-            <ProfileHeader profile={profile} loading={loading} />
-          </CardStaggerItem>
+      <header className={profileWorkbenchLayoutClasses.titleBar}>
+        <div className='mx-auto w-full max-w-7xl'>
+          <h1 className='text-lg leading-tight font-semibold md:text-xl'>
+            {t('Account & Security')}
+          </h1>
+        </div>
+      </header>
 
-          <CardStaggerItem>
-            <div className='grid gap-4 sm:gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.46fr)] xl:items-start'>
-              <div className='space-y-4 sm:space-y-6'>
-                <ProfileSettingsCard
-                  profile={profile}
-                  loading={loading}
-                  onProfileUpdate={refreshProfile}
-                />
-                <LanguagePreferencesCard
-                  profile={profile}
-                  onProfileUpdate={refreshProfile}
-                />
-                <ProfileSecurityCard profile={profile} loading={loading} />
-                <LoginSessionsCard />
-              </div>
-
-              <div className='space-y-4 sm:space-y-6 xl:sticky xl:top-6'>
-                {checkinEnabled && (
-                  <CheckinCalendarCard
-                    checkinEnabled={checkinEnabled}
-                    turnstileEnabled={turnstileEnabled}
-                    turnstileSiteKey={turnstileSiteKey}
+      <div className={profileWorkbenchLayoutClasses.scrollRegion}>
+        <div className={profileWorkbenchLayoutClasses.content}>
+          <div className={profileWorkbenchLayoutClasses.grid}>
+            <div className={profileWorkbenchLayoutClasses.primaryColumn}>
+              <ProfileSectionGroup
+                id={profileSectionIds.account}
+                title={t('Account')}
+              >
+                <ProfileSectionItem>
+                  <ProfileHeader profile={profile} loading={loading} />
+                </ProfileSectionItem>
+                <ProfileSectionItem>
+                  <ProfileSettingsCard
+                    profile={profile}
+                    loading={loading}
+                    onProfileUpdate={refreshProfile}
                   />
-                )}
-                {canConfigureSidebar && <SidebarModulesCard />}
-                <PasskeyCard loading={loading} />
-                <TwoFACard loading={loading} />
-              </div>
+                </ProfileSectionItem>
+              </ProfileSectionGroup>
+
+              <ProfileSectionGroup
+                id={profileSectionIds.security}
+                title={t('Security')}
+              >
+                <ProfileSectionItem>
+                  <ProfileSecurityCard profile={profile} loading={loading} />
+                </ProfileSectionItem>
+                <ProfileSectionItem>
+                  <PasskeyCard loading={loading} />
+                </ProfileSectionItem>
+                <ProfileSectionItem>
+                  <TwoFACard loading={loading} />
+                </ProfileSectionItem>
+                <ProfileSectionItem>
+                  <LoginSessionsCard />
+                </ProfileSectionItem>
+              </ProfileSectionGroup>
             </div>
-          </CardStaggerItem>
-        </CardStaggerContainer>
+
+            <div className={profileWorkbenchLayoutClasses.secondaryColumn}>
+              <ProfileSectionGroup
+                id={profileSectionIds.preferences}
+                title={t('Preferences')}
+              >
+                <ProfileSectionItem>
+                  <LanguagePreferencesCard
+                    profile={profile}
+                    onProfileUpdate={refreshProfile}
+                  />
+                </ProfileSectionItem>
+                {checkinEnabled && (
+                  <ProfileSectionItem>
+                    <CheckinCalendarCard
+                      checkinEnabled={checkinEnabled}
+                      turnstileEnabled={turnstileEnabled}
+                      turnstileSiteKey={turnstileSiteKey}
+                    />
+                  </ProfileSectionItem>
+                )}
+                {canConfigureSidebar && (
+                  <ProfileSectionItem>
+                    <SidebarModulesCard />
+                  </ProfileSectionItem>
+                )}
+              </ProfileSectionGroup>
+            </div>
+          </div>
+        </div>
       </div>
     </Main>
   )

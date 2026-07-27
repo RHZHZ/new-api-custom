@@ -106,6 +106,21 @@ export const USAGE_BILLING_PATH = {
 export type UsageBillingPath =
   (typeof USAGE_BILLING_PATH)[keyof typeof USAGE_BILLING_PATH]
 
+export interface SavingsEstimate {
+  schema_version: number
+  calculator: string
+  official_quota: number
+  actual_quota: number
+  savings_quota: number
+  source: string
+  source_url?: string
+  source_updated_at: number
+  official_confirmed: boolean
+  matched_model: string
+  pricing_mode: string
+  estimated: boolean
+}
+
 export interface LogOtherData {
   admin_info?: {
     is_multi_key?: boolean
@@ -218,6 +233,7 @@ export interface LogOtherData {
   violation_fee_code?: string
   violation_fee_marker?: string
   fee_quota?: number
+  savings_estimate?: SavingsEstimate
   // Reject / intercept reason (admin)
   reject_reason?: string
   // Task-related fields (for refund logs, type=6)

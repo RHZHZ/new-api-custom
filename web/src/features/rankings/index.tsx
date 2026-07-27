@@ -17,10 +17,12 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 For commercial licensing, please contact support@quantumnous.com
 */
 import { useNavigate, useSearch } from '@tanstack/react-router'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { PublicLayout } from '@/components/layout'
 import { PageTransition } from '@/components/page-transition'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
 import {
@@ -32,14 +34,14 @@ import {
 import { useRankings } from './hooks/use-rankings'
 import type { RankingPeriod } from './types'
 
-const VALID_PERIODS: RankingPeriod[] = ['today', 'week', 'month', 'year']
+const VALID_PERIODS = new Set<RankingPeriod>(['today', 'week', 'month', 'year'])
 
 export function Rankings() {
   const { t } = useTranslation()
   const search = useSearch({ from: '/rankings/' })
   const navigate = useNavigate()
 
-  const period: RankingPeriod = VALID_PERIODS.includes(
+  const period: RankingPeriod = VALID_PERIODS.has(
     search.period as RankingPeriod
   )
     ? (search.period as RankingPeriod)
@@ -55,83 +57,82 @@ export function Rankings() {
     })
   }
 
+  let rankingsContent: ReactNode
+  if (rankingsQuery.isLoading) {
+    rankingsContent = <RankingsLoading />
+  } else if (!snapshot) {
+    const message =
+      rankingsQuery.error instanceof Error
+        ? rankingsQuery.error.message
+        : t('Unable to load rankings data')
+    rankingsContent = (
+      <RankingsError
+        message={message}
+        onRetry={() => rankingsQuery.refetch()}
+      />
+    )
+  } else {
+    rankingsContent = (
+      <>
+        <ModelsSection
+          history={snapshot.models_history}
+          rows={snapshot.models}
+          period={period}
+        />
+
+        <MarketShareSection
+          history={snapshot.vendor_share_history}
+          rows={snapshot.vendors}
+          period={period}
+        />
+
+        <PulseSection
+          movers={snapshot.top_movers}
+          droppers={snapshot.top_droppers}
+        />
+      </>
+    )
+  }
+
   return (
     <PublicLayout showMainContainer={false}>
-      <div className='relative'>
-        <div
-          aria-hidden
-          className='pointer-events-none absolute inset-x-0 top-0 h-[600px] opacity-20 dark:opacity-[0.10]'
-          style={{
-            background: [
-              'radial-gradient(ellipse 60% 50% at 20% 20%, oklch(0.72 0.18 250 / 80%) 0%, transparent 70%)',
-              'radial-gradient(ellipse 50% 40% at 80% 15%, oklch(0.65 0.15 200 / 60%) 0%, transparent 70%)',
-              'radial-gradient(ellipse 40% 35% at 50% 70%, oklch(0.70 0.12 280 / 40%) 0%, transparent 70%)',
-            ].join(', '),
-            maskImage:
-              'linear-gradient(to bottom, black 40%, transparent 100%)',
-            WebkitMaskImage:
-              'linear-gradient(to bottom, black 40%, transparent 100%)',
-          }}
-        />
-        <PageTransition className='relative mx-auto w-full max-w-[1280px] space-y-8 px-3 pt-16 pb-10 sm:px-6 sm:pt-20 sm:pb-12 xl:px-8'>
-          <RankingsHero period={period} onPeriodChange={handlePeriodChange} />
+      {/* Analysis canvas (16.7): no radial hero decoration; content starts
+          below the fixed 64/72px public header. */}
+      <PageTransition className='relative mx-auto w-full max-w-[1184px] space-y-8 px-5 pt-[88px] pb-10 md:px-10 md:pt-[104px] md:pb-12'>
+        <RankingsHero period={period} onPeriodChange={handlePeriodChange} />
 
-          {rankingsQuery.isLoading ? (
-            <RankingsLoading />
-          ) : !snapshot ? (
-            <RankingsError
-              message={
-                rankingsQuery.error instanceof Error
-                  ? rankingsQuery.error.message
-                  : t('Unable to load rankings data')
-              }
-            />
-          ) : (
-            <>
-              <ModelsSection
-                history={snapshot.models_history}
-                rows={snapshot.models}
-                period={period}
-              />
-
-              <MarketShareSection
-                history={snapshot.vendor_share_history}
-                rows={snapshot.vendors}
-                period={period}
-              />
-
-              <PulseSection
-                movers={snapshot.top_movers}
-                droppers={snapshot.top_droppers}
-              />
-            </>
-          )}
-        </PageTransition>
-      </div>
+        {rankingsContent}
+      </PageTransition>
     </PublicLayout>
   )
 }
 
 function RankingsLoading() {
+  // Skeletons mirror the final chart canvas sizes (16.11).
   return (
     <div className='space-y-6'>
-      <Skeleton className='h-[420px] w-full rounded-xl' />
-      <Skeleton className='h-[360px] w-full rounded-xl' />
-      <Skeleton className='h-[180px] w-full rounded-xl' />
+      <Skeleton className='h-[420px] w-full rounded-md' />
+      <Skeleton className='h-[360px] w-full rounded-md' />
+      <Skeleton className='h-[180px] w-full rounded-md' />
     </div>
   )
 }
 
-function RankingsError(props: { message: string }) {
+function RankingsError(props: { message: string; onRetry: () => void }) {
   const { t } = useTranslation()
+  // Open bordered error region with a real retry entry (16.7) — no
+  // large-radius dashed card.
   return (
-    <div className='bg-card rounded-xl border border-dashed px-6 py-12 text-center'>
+    <div className='border-border rounded-md border px-6 py-12 text-center'>
       <h2 className='text-foreground text-base font-semibold'>
         {t('Unable to load rankings')}
       </h2>
       <p className='text-muted-foreground mx-auto mt-2 max-w-md text-sm'>
         {props.message}
       </p>
+      <Button variant='outline' className='mt-5' onClick={props.onRetry}>
+        {t('Retry')}
+      </Button>
     </div>
   )
 }

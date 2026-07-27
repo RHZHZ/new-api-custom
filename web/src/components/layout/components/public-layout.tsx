@@ -16,11 +16,18 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
+import { cn } from '@/lib/utils'
+
 import type { TopNavLink } from '../types'
 import { PublicHeader, type PublicHeaderProps } from './public-header'
 
 type PublicLayoutProps = {
   children: React.ReactNode
+  /**
+   * Explicit layout variant (enterprise site theme 16.6). `page` (default)
+   * is the stable inner-page shell; `home` is the landing masthead.
+   */
+  variant?: 'home' | 'page'
   showMainContainer?: boolean
   navContent?: React.ReactNode
   headerProps?: Omit<PublicHeaderProps, 'navContent'>
@@ -32,10 +39,20 @@ type PublicLayoutProps = {
   siteName?: string
 }
 
+/**
+ * Shared public shell. Owns the brand scope (16.4), the fixed header, a
+ * semantic `main` that starts below the header's real height (64px mobile /
+ * 72px desktop for inner pages, 16.6), and the page background — every
+ * public page, including full-width custom HTML/iframe branches, keeps
+ * these responsibilities.
+ */
 export function PublicLayout(props: PublicLayoutProps) {
+  const variant = props.variant ?? 'page'
+
   return (
-    <div className='bg-background text-foreground relative min-h-svh overflow-x-clip'>
+    <div className='brand-scope-public bg-background text-foreground relative min-h-svh overflow-x-clip'>
       <PublicHeader
+        variant={variant}
         navContent={props.navContent}
         navLinks={props.navLinks}
         showThemeSwitch={props.showThemeSwitch}
@@ -47,7 +64,12 @@ export function PublicLayout(props: PublicLayoutProps) {
       />
 
       {props.showMainContainer !== false ? (
-        <main className='container px-4 py-6 pt-20 md:px-4'>
+        <main
+          className={cn(
+            'container px-4 pb-8 md:px-4',
+            variant === 'home' ? 'pt-20' : 'pt-[88px] md:pt-[104px]'
+          )}
+        >
           {props.children}
         </main>
       ) : (

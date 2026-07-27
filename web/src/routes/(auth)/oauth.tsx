@@ -22,6 +22,7 @@ import { useEffect } from 'react'
 import { toast } from 'sonner'
 
 import { wechatLoginByCode } from '@/features/auth/api'
+import { OAuthCallbackScreen } from '@/features/auth/components/oauth-callback-screen'
 import { sanitizeAuthRedirect } from '@/features/auth/lib/auth-redirect'
 import { applyAuthBundle, isAuthBundle } from '@/lib/api'
 import { getServerErrorMessageKey } from '@/lib/server-error-message'
@@ -64,7 +65,9 @@ function OAuthComponent() {
     })()
   }, [navigate, search])
 
-  return null
+  // Never a blank page during callback processing (16.8) — show the shared
+  // processing screen until a redirect resolves.
+  return <OAuthCallbackScreen provider={search?.provider ?? ''} mode='login' />
 }
 
 export const Route = createFileRoute('/(auth)/oauth')({

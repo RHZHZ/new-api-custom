@@ -18,18 +18,22 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { createContext, useContext, useState } from 'react'
 
+import {
+  defaultLayoutVariant,
+  layoutVariantCookieName,
+  resolveLayoutVariant,
+  type LayoutVariant,
+} from '@/components/layout/lib/authenticated-shell-layout'
 import { getCookie, setCookie } from '@/lib/cookies'
 
 export type Collapsible = 'offcanvas' | 'icon' | 'none'
-export type Variant = 'inset' | 'sidebar' | 'floating'
+export type Variant = LayoutVariant
 
 // Cookie constants following the pattern from sidebar.tsx
 const LAYOUT_COLLAPSIBLE_COOKIE_NAME = 'layout_collapsible'
-const LAYOUT_VARIANT_COOKIE_NAME = 'layout_variant'
 const LAYOUT_COOKIE_MAX_AGE = 60 * 60 * 24 * 7 // 7 days
 
 // Default values
-const DEFAULT_VARIANT = 'inset'
 const DEFAULT_COLLAPSIBLE = 'icon'
 
 type LayoutContextType = {
@@ -57,8 +61,7 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
   })
 
   const [variant, _setVariant] = useState<Variant>(() => {
-    const saved = getCookie(LAYOUT_VARIANT_COOKIE_NAME)
-    return (saved as Variant) || DEFAULT_VARIANT
+    return resolveLayoutVariant(getCookie(layoutVariantCookieName))
   })
 
   const setCollapsible = (newCollapsible: Collapsible) => {
@@ -72,12 +75,12 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
 
   const setVariant = (newVariant: Variant) => {
     _setVariant(newVariant)
-    setCookie(LAYOUT_VARIANT_COOKIE_NAME, newVariant, LAYOUT_COOKIE_MAX_AGE)
+    setCookie(layoutVariantCookieName, newVariant, LAYOUT_COOKIE_MAX_AGE)
   }
 
   const resetLayout = () => {
     setCollapsible(DEFAULT_COLLAPSIBLE)
-    setVariant(DEFAULT_VARIANT)
+    setVariant(defaultLayoutVariant)
   }
 
   const contextValue: LayoutContextType = {
@@ -85,7 +88,7 @@ export function LayoutProvider({ children }: LayoutProviderProps) {
     defaultCollapsible: DEFAULT_COLLAPSIBLE,
     collapsible,
     setCollapsible,
-    defaultVariant: DEFAULT_VARIANT,
+    defaultVariant: defaultLayoutVariant,
     variant,
     setVariant,
   }

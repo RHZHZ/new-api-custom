@@ -36,7 +36,9 @@ interface FooterColumnProps {
 
 interface FooterProps {
   logo?: string
+  brandMark?: React.ReactNode
   name?: string
+  websiteUrl?: string
   columns?: FooterColumnProps[]
   copyright?: string
   className?: string
@@ -159,7 +161,8 @@ export function Footer(props: FooterProps) {
   } = useSystemConfig()
 
   const displayLogo = systemLogo || props.logo || '/logo.png'
-  const displayName = systemName || props.name || 'New API'
+  const displayName = props.name || systemName || 'New API'
+  const isRapiFooter = props.name === 'RAPI'
   const isDemoSiteMode = Boolean(demoSiteEnabled)
   const currentYear = new Date().getFullYear()
 
@@ -221,6 +224,16 @@ export function Footer(props: FooterProps) {
   )
 
   const displayColumns = props.columns ?? fallbackColumns
+  let brandVisual: React.ReactNode = (
+    <img
+      src={displayLogo}
+      alt={displayName}
+      className='size-7 rounded-[3px] object-contain'
+    />
+  )
+  if (props.brandMark) {
+    brandVisual = props.brandMark
+  }
 
   if (footerHtml) {
     return (
@@ -248,38 +261,57 @@ export function Footer(props: FooterProps) {
 
   return (
     <footer
-      className={cn('border-border/40 relative z-10 border-t', props.className)}
+      className={cn(
+        'border-border/40 relative z-10 border-t',
+        isRapiFooter && 'bg-[#F1F0EA] dark:bg-[#101512]',
+        props.className
+      )}
     >
-      <div className='mx-auto max-w-6xl px-6 py-12 md:py-16'>
+      <div
+        className={cn(
+          'mx-auto px-6 py-12 md:py-16',
+          isRapiFooter ? 'max-w-[1248px] md:px-10' : 'max-w-6xl'
+        )}
+      >
         <div className='flex flex-col justify-between gap-10 md:flex-row md:gap-16'>
           {/* Brand column */}
           <div className='shrink-0'>
             <Link to='/' className='group flex items-center gap-2.5'>
-              <img
-                src={displayLogo}
-                alt={displayName}
-                className='size-7 rounded-lg object-contain'
-              />
+              {brandVisual}
               <span className='text-sm font-semibold tracking-tight'>
                 {displayName}
               </span>
             </Link>
             <p className='text-muted-foreground/60 mt-3 max-w-[200px] text-xs leading-relaxed'>
-              {t('Powerful API Management Platform')}
+              {t(
+                isRapiFooter
+                  ? 'Unified model API service'
+                  : 'Powerful API Management Platform'
+              )}
             </p>
+            {props.websiteUrl && (
+              <a
+                href={props.websiteUrl}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='mt-3 inline-flex text-xs font-medium text-[#176B47] hover:underline dark:text-[#46A879]'
+              >
+                {props.websiteUrl.replace(/^https?:\/\//, '')}
+              </a>
+            )}
           </div>
 
           {/* Links columns */}
           {isDemoSiteMode && (
             <div className='grid grid-cols-3 gap-8 md:gap-16'>
-              {displayColumns.map((column, index) => (
-                <div key={index}>
+              {displayColumns.map((column) => (
+                <div key={column.title}>
                   <p className='text-muted-foreground/50 mb-3 text-xs font-medium tracking-wider uppercase'>
                     {t(column.title)}
                   </p>
                   <ul className='space-y-2.5'>
-                    {column.links.map((link, linkIndex) => (
-                      <li key={linkIndex}>
+                    {column.links.map((link) => (
+                      <li key={`${link.href}:${link.text}`}>
                         <FooterLinkItem link={link} />
                       </li>
                     ))}

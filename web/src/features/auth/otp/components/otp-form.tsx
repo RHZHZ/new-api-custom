@@ -164,7 +164,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
                     {...field}
                     maxLength={BACKUP_CODE_LENGTH}
                     autoComplete='off'
-                    className='font-mono uppercase'
+                    className='h-12 font-mono text-base uppercase md:text-[15px]'
                     onChange={(e) => {
                       const formatted = formatBackupCode(e.target.value)
                       field.onChange(formatted)
@@ -174,21 +174,39 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
                   <InputOTP
                     maxLength={OTP_LENGTH}
                     {...field}
-                    containerClassName='justify-between sm:[&>[data-slot="input-otp-group"]>div]:w-12'
+                    containerClassName='justify-between'
                   >
                     <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
+                      <InputOTPSlot
+                        index={0}
+                        className='h-12 w-11 text-base sm:w-12'
+                      />
+                      <InputOTPSlot
+                        index={1}
+                        className='h-12 w-11 text-base sm:w-12'
+                      />
                     </InputOTPGroup>
                     <InputOTPSeparator />
                     <InputOTPGroup>
-                      <InputOTPSlot index={2} />
-                      <InputOTPSlot index={3} />
+                      <InputOTPSlot
+                        index={2}
+                        className='h-12 w-11 text-base sm:w-12'
+                      />
+                      <InputOTPSlot
+                        index={3}
+                        className='h-12 w-11 text-base sm:w-12'
+                      />
                     </InputOTPGroup>
                     <InputOTPSeparator />
                     <InputOTPGroup>
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
+                      <InputOTPSlot
+                        index={4}
+                        className='h-12 w-11 text-base sm:w-12'
+                      />
+                      <InputOTPSlot
+                        index={5}
+                        className='h-12 w-11 text-base sm:w-12'
+                      />
                     </InputOTPGroup>
                   </InputOTP>
                 )}
@@ -205,7 +223,7 @@ export function OtpForm({ className, ...props }: OtpFormProps) {
 
         <Button
           type='submit'
-          className='mt-2 w-full'
+          className='mt-2 h-12 w-full'
           disabled={!isFormValid || isLoading}
         >
           {isLoading ? <Loader2 className='h-4 w-4 animate-spin' /> : null}

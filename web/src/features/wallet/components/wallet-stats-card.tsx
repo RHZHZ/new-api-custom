@@ -65,14 +65,14 @@ export function WalletStatsCard(props: WalletStatsCardProps) {
       value: formatQuota(props.user?.used_quota ?? 0),
       description: t('Total consumed quota'),
       icon: BarChart3,
-      tone: 'info',
+      tone: 'warning',
     },
     {
       label: t('API Requests'),
       value: (props.user?.request_count ?? 0).toLocaleString(),
       description: t('Total requests made'),
       icon: Activity,
-      tone: 'chart-4',
+      tone: 'info',
     },
   ]
 

@@ -33,6 +33,22 @@ export interface QuotaDataItem {
   quota?: number
 }
 
+export interface SavingsSummary {
+  enabled: boolean
+  savings_quota: number
+  official_quota: number
+  actual_quota: number
+  request_count: number
+  estimated_request_count: number
+  coverage_ratio: number
+  source: string
+  official_confirmed: boolean
+  source_updated_at: number
+  official_price_stale: boolean
+  is_partial: boolean
+  window_days: number
+}
+
 export interface FlowQuotaDataItem {
   user_id?: number
   username?: string

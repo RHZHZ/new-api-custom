@@ -29,9 +29,31 @@ For commercial licensing, please contact support@quantumnous.com
 
 @import './theme.css';
 @import './theme-presets.css';
+@import './brand-scopes.css';
+@import './auth-motion.css';
 
 /* Shiki dual themes: token colors follow dark theme (pre background stays `bg-background` on the block) */
 @layer components {
+  /*
+   * Workbench sidebar active marker (enterprise theme 16.6): the active
+   * item carries a 2px primary bar on its leading edge in addition to the
+   * soft accent fill, so state never relies on fill color alone.
+   */
+  [data-sidebar='menu-button'][data-active] {
+    position: relative;
+  }
+
+  [data-sidebar='menu-button'][data-active]::before {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    inset-inline-start: 0;
+    width: 2px;
+    border-radius: 1px;
+    background: var(--sidebar-primary);
+    content: '';
+  }
+
   .shiki span {
     color: var(--shiki-light) !important;
     font-style: var(--shiki-light-font-style) !important;

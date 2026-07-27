@@ -18,8 +18,7 @@ For commercial licensing, please contact support@quantumnous.com
 */
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link } from '@tanstack/react-router'
-import axios from 'axios'
-import { Loader2, LogIn, KeyRound } from 'lucide-react'
+import { CircleAlert, KeyRound, Loader2, LogIn } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
@@ -59,6 +58,8 @@ import { getServerErrorMessageKey } from '@/lib/server-error-message'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 
+import { getLoginFailureMessage } from '../login-error'
+
 export function UserAuthForm({
   className,
   redirectTo,
@@ -72,6 +73,7 @@ export function UserAuthForm({
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false)
   const [isWeChatDialogOpen, setIsWeChatDialogOpen] = useState(false)
   const [isWeChatSubmitting, setIsWeChatSubmitting] = useState(false)
+  const [formError, setFormError] = useState('')
   const legalConsentErrorMessage = t('Please agree to the legal terms first')
   const loginFailedMessage = t('Login failed')
 
@@ -158,6 +160,7 @@ export function UserAuthForm({
 
     if (!validateTurnstile()) return
 
+    setFormError('')
     setIsLoading(true)
     try {
       const res = await login({
@@ -166,25 +169,37 @@ export function UserAuthForm({
         turnstile: turnstileToken,
       })
 
-      if (res.success) {
-        if (res.data && 'require_2fa' in res.data && res.data.require_2fa) {
-          if (!res.data.flow_token) {
-            throw new Error(t('Login flow expired. Please sign in again.'))
-          }
-          setPending2FAFlowToken(res.data.flow_token)
-          redirectTo2FA()
-          return
-        }
-
-        if (!isAuthBundle(res.data)) {
-          throw new Error(t('Login failed'))
-        }
-        await handleLoginSuccess(res.data, redirectTo)
-        toast.success(t('Welcome back!'))
+      if (!res.success) {
+        const messageKey = getServerErrorMessageKey(res)
+        setFormError(
+          messageKey
+            ? t(messageKey)
+            : getLoginFailureMessage(res, loginFailedMessage)
+        )
+        return
       }
+
+      if (res.data && 'require_2fa' in res.data && res.data.require_2fa) {
+        if (!res.data.flow_token) {
+          throw new Error(t('Login flow expired. Please sign in again.'))
+        }
+        setPending2FAFlowToken(res.data.flow_token)
+        redirectTo2FA()
+        return
+      }
+
+      if (!isAuthBundle(res.data)) {
+        throw new Error(t('Login failed'))
+      }
+      await handleLoginSuccess(res.data, redirectTo)
+      toast.success(t('Welcome back!'))
     } catch (error: unknown) {
-      if (axios.isAxiosError(error)) return
-      toast.error(error instanceof Error ? error.message : loginFailedMessage)
+      const messageKey = getServerErrorMessageKey(error)
+      setFormError(
+        messageKey
+          ? t(messageKey)
+          : getLoginFailureMessage(error, loginFailedMessage)
+      )
     } finally {
       setIsLoading(false)
     }
@@ -304,10 +319,25 @@ export function UserAuthForm({
     }
   }
 
-  const alternativeLoginMethods = (
-    <>
+  // All alternative methods live below the primary task, under one shared
+  // divider (16.8) — the divider renders once, here, not per provider group.
+  const alternativeLoginMethods = hasAlternativeLogin ? (
+    <div className='space-y-3'>
+      {passwordLoginEnabled && (
+        <div className='relative'>
+          <div className='absolute inset-0 flex items-center'>
+            <span className='w-full border-t' />
+          </div>
+          <div className='relative flex justify-center text-xs uppercase'>
+            <span className='bg-background text-muted-foreground px-2'>
+              {t('Or continue with')}
+            </span>
+          </div>
+        </div>
+      )}
+
       {passkeyLoginEnabled && (
-        <div className='mt-2 space-y-1'>
+        <div className='space-y-1'>
           <Button
             type='button'
             variant='outline'
@@ -337,19 +367,22 @@ export function UserAuthForm({
         disabled={isLoading || (requiresLegalConsent && !agreedToLegal)}
         onWeChatLogin={hasWeChatLogin ? handleOpenWeChatDialog : undefined}
         isWeChatLoading={isWeChatSubmitting}
+        showDivider={false}
       />
-    </>
-  )
+    </div>
+  ) : null
 
   return (
     <Form {...form}>
+      {/* Task order per enterprise site theme 16.8: fields → consent →
+          captcha → primary submit → alternative methods below a divider.
+          Inputs and the primary button are 48px tall; inputs stay ≥16px on
+          mobile so browsers don't auto-zoom. */}
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className={cn('grid gap-4', className)}
         {...props}
       >
-        {hasAlternativeLogin && alternativeLoginMethods}
-
         {passwordLoginEnabled && (
           <>
             {/* Username Field */}
@@ -361,8 +394,14 @@ export function UserAuthForm({
                   <FormLabel>{t('Username or Email')}</FormLabel>
                   <FormControl>
                     <Input
+                      className='bg-card dark:bg-card h-12 px-3 text-base md:text-[15px]'
                       placeholder={t('Enter your username or email')}
                       {...field}
+                      autoComplete='username'
+                      onChange={(event) => {
+                        if (formError) setFormError('')
+                        field.onChange(event)
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
@@ -375,44 +414,32 @@ export function UserAuthForm({
               control={form.control}
               name='password'
               render={({ field }) => (
-                <FormItem className='relative'>
-                  <FormLabel>{t('Password')}</FormLabel>
+                <FormItem>
+                  <div className='flex min-w-0 flex-wrap items-center justify-between gap-x-4 gap-y-1'>
+                    <FormLabel>{t('Password')}</FormLabel>
+                    <Link
+                      to='/forgot-password'
+                      className='text-muted-foreground hover:text-foreground text-sm font-medium'
+                    >
+                      {t('Forgot password?')}
+                    </Link>
+                  </div>
                   <FormControl>
                     <PasswordInput
+                      className='bg-card dark:bg-card h-12 px-3 text-base md:text-[15px]'
                       placeholder={t('Enter password')}
                       {...field}
+                      autoComplete='current-password'
+                      onChange={(event) => {
+                        if (formError) setFormError('')
+                        field.onChange(event)
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
-                  <Link
-                    to='/forgot-password'
-                    className='text-muted-foreground absolute end-0 -top-0.5 z-10 text-sm font-medium hover:opacity-75'
-                  >
-                    {t('Forgot password?')}
-                  </Link>
                 </FormItem>
               )}
             />
-
-            {/* Submit Button */}
-            <Button
-              type='submit'
-              className='mt-2 w-full justify-center gap-2'
-              disabled={isLoading || (requiresLegalConsent && !agreedToLegal)}
-            >
-              {isLoading ? <Loader2 className='animate-spin' /> : <LogIn />}
-              {t('Sign in')}
-            </Button>
-
-            {/* Turnstile */}
-            {isTurnstileEnabled && (
-              <div className='mt-2'>
-                <Turnstile
-                  siteKey={turnstileSiteKey}
-                  onVerify={setTurnstileToken}
-                />
-              </div>
-            )}
           </>
         )}
 
@@ -420,10 +447,51 @@ export function UserAuthForm({
           status={status}
           checked={agreedToLegal}
           onCheckedChange={setAgreedToLegal}
-          className='mt-1'
         />
 
-        {!hasAlternativeLogin && alternativeLoginMethods}
+        {passwordLoginEnabled && (
+          <>
+            {/* Turnstile — before submit, sized to narrow screens (16.8) */}
+            {isTurnstileEnabled && (
+              <div className='max-w-full overflow-hidden'>
+                <Turnstile
+                  siteKey={turnstileSiteKey}
+                  onVerify={setTurnstileToken}
+                />
+              </div>
+            )}
+
+            {formError && (
+              <div
+                role='alert'
+                aria-live='assertive'
+                className='border-destructive/35 bg-destructive/8 text-destructive flex items-start gap-2 rounded-md border px-3 py-2.5 text-sm leading-5'
+              >
+                <CircleAlert
+                  className='mt-0.5 size-4 shrink-0'
+                  aria-hidden='true'
+                />
+                <p>{formError}</p>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <Button
+              type='submit'
+              className='mt-1 h-12 w-full justify-center gap-2'
+              disabled={isLoading || (requiresLegalConsent && !agreedToLegal)}
+            >
+              {isLoading ? (
+                <Loader2 className='animate-spin' aria-hidden='true' />
+              ) : (
+                <LogIn aria-hidden='true' />
+              )}
+              {isLoading ? t('Signing in...') : t('Sign in')}
+            </Button>
+          </>
+        )}
+
+        {alternativeLoginMethods}
       </form>
 
       {hasWeChatLogin && (

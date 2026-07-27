@@ -22,6 +22,7 @@ import {
   createRootRouteWithContext,
   Outlet,
   redirect,
+  useLocation,
   useNavigate,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
@@ -44,9 +45,16 @@ import { subscribeAuthSessionEvents } from '@/lib/auth-session-sync'
 import { resolveLegacyRoute } from '@/lib/legacy-route'
 import { useAuthStore } from '@/stores/auth-store'
 
+import { shouldRenderDevelopmentTools } from './-root-devtools-visibility'
+
 function RootComponent() {
   const navigate = useNavigate()
+  const location = useLocation()
   const queryClient = useQueryClient()
+  const showDevelopmentTools = shouldRenderDevelopmentTools(
+    import.meta.env.MODE,
+    location.pathname
+  )
 
   // Load system configuration (logo, system name, etc.) from backend
   useSystemConfig({ autoLoad: true })
@@ -97,7 +105,7 @@ function RootComponent() {
       <NavigationProgress />
       <Outlet />
       <Toaster closeButton duration={5000} position='top-center' richColors />
-      {import.meta.env.MODE === 'development' && (
+      {showDevelopmentTools && (
         <>
           <ReactQueryDevtools buttonPosition='bottom-left' />
           <TanStackRouterDevtools position='bottom-right' />
@@ -105,6 +113,10 @@ function RootComponent() {
       )}
     </ThemeCustomizationProvider>
   )
+}
+
+function RootNotFoundComponent() {
+  return <NotFoundError />
 }
 
 // 缓存 setup 状态检查结果，避免每次导航都重复调用 API
@@ -177,6 +189,6 @@ export const Route = createRootRouteWithContext<{
     }
   },
   component: RootComponent,
-  notFoundComponent: NotFoundError,
+  notFoundComponent: RootNotFoundComponent,
   errorComponent: GeneralError,
 })

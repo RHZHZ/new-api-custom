@@ -1,0 +1,119 @@
+/*
+Copyright (C) 2023-2026 QuantumNous
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+For commercial licensing, please contact support@quantumnous.com
+*/
+
+/*
+ * Brand scopes — enterprise site theme, chapter 16.4.
+ *
+ * Three root-level semantic scopes keep the brand palette from leaking
+ * into the wrong layer:
+ *
+ *   - `.brand-scope-public`  → held by PublicLayout. Pins the editorial
+ *     warm-white canvas + mineral-green accent for public pages.
+ *   - `.brand-scope-auth`    → held by AuthLayout. Same palette as the
+ *     public layer (16.4 uses one column for both).
+ *   - the app workbench      → no wrapper class. The authenticated shell
+ *     keeps consuming `--background` / `--card` / `--primary` etc., whose
+ *     *default preset* values live in theme.css. User-selected presets
+ *     (`[data-theme-preset]`) still override them and are never touched
+ *     by these scopes.
+ *
+ * Only semantic variables are (re)defined here — no page layout rules.
+ * Values consumed through the same Tailwind tokens (`bg-background`,
+ * `text-primary`, …), so components stay scope-agnostic.
+ */
+
+.brand-scope-public,
+.brand-scope-auth {
+  --radius: 0.375rem;
+  --background: #f1f0ea;
+  --foreground: #172019;
+  --card: #ffffff;
+  --card-foreground: #172019;
+  --popover: #ffffff;
+  --popover-foreground: #172019;
+  --primary: #164a35;
+  --primary-foreground: #ffffff;
+  --secondary: #e7e9e1;
+  --secondary-foreground: #2c382f;
+  --muted: #e9eae2;
+  --muted-foreground: #5f6962;
+  --accent: color-mix(in oklch, var(--primary) 10%, var(--background));
+  --accent-foreground: #172019;
+  --destructive: #b7463e;
+  --destructive-foreground: #ffffff;
+  --success: #176b47;
+  --success-foreground: #ffffff;
+  --warning: #a96f1e;
+  --warning-foreground: #ffffff;
+  --info: #356c8d;
+  --info-foreground: #ffffff;
+  --border: #d3d8d2;
+  --input: #c8cfc8;
+  --ring: color-mix(in oklch, #164a35 60%, transparent);
+}
+
+.dark .brand-scope-public,
+.dark .brand-scope-auth {
+  --background: #101512;
+  --foreground: #f2f3ee;
+  --card: #171d19;
+  --card-foreground: #f2f3ee;
+  --popover: #1a211c;
+  --popover-foreground: #f2f3ee;
+  --primary: #93d2ad;
+  --primary-foreground: #0d271c;
+  --secondary: #232b25;
+  --secondary-foreground: #dbe2db;
+  --muted: #1b211d;
+  --muted-foreground: #aab4ac;
+  --accent: color-mix(in oklch, var(--primary) 16%, var(--background));
+  --accent-foreground: #f2f3ee;
+  --destructive: #e07a72;
+  --destructive-foreground: #201110;
+  --success: #93d2ad;
+  --success-foreground: #0d271c;
+  --warning: #d5a153;
+  --warning-foreground: #211705;
+  --info: #78afcf;
+  --info-foreground: #0c1a23;
+  --border: #303830;
+  --input: #3a423b;
+  --ring: color-mix(in oklch, #93d2ad 55%, transparent);
+}
+
+/*
+ * Fixed brand-plane color for the auth split layout (16.6). The deep
+ * green stays constant across light/dark — it is the brand surface, not
+ * a themed surface — so it lives as a dedicated token instead of
+ * repurposing `--primary`.
+ */
+.brand-scope-public,
+.brand-scope-auth {
+  --brand-plane: #0d271c;
+  --brand-plane-depth: #0b2319;
+  --brand-plane-foreground: #f5f7f4;
+  --brand-plane-muted: #b9d8c5;
+  --brand-plane-signal: #93d2ad;
+}
+
+.dark .brand-scope-public,
+.dark .brand-scope-auth {
+  --brand-plane: #0a130e;
+  --brand-plane-depth: #080f0b;
+}

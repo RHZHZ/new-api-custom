@@ -48,6 +48,24 @@ export interface PublicHeaderProps {
   navLinks?: TopNavLink[]
   mobileLinks?: TopNavLink[]
   navContent?: React.ReactNode
+  /**
+   * Explicit layout variant (enterprise site theme 16.6). `home` keeps the
+   * tall editorial masthead of the landing page; `page` (default) renders
+   * the stable inner-page bar: 64px on mobile, 72px on desktop, with no
+   * height change on scroll. Never inferred from site name, logo, or URL.
+   */
+  variant?: 'home' | 'page'
+  /**
+   * Brand rendering. `wordmark` draws the site name as a typographic
+   * wordmark with descriptor (RAPI style); `system` (default) keeps the
+   * configured logo image + name.
+   */
+  brandStyle?: 'wordmark' | 'system'
+  /**
+   * Header container width. `wide` (1440px) is for full-bleed comparison /
+   * analysis pages so page content and header edges stay aligned (16.5).
+   */
+  contentWidth?: 'default' | 'wide'
   showThemeSwitch?: boolean
   showLanguageSwitcher?: boolean
   logo?: React.ReactNode
@@ -64,6 +82,9 @@ export interface PublicHeaderProps {
 export function PublicHeader(props: PublicHeaderProps) {
   const {
     navLinks = defaultTopNavLinks,
+    variant = 'page',
+    brandStyle = 'system',
+    contentWidth = 'default',
     showThemeSwitch = true,
     showLanguageSwitcher = true,
     logo: customLogo,
@@ -96,6 +117,8 @@ export function PublicHeader(props: PublicHeaderProps) {
   const user = auth.user
   const isAuthenticated = !!user
   const displaySiteName = customSiteName || systemName
+  const isHome = variant === 'home'
+  const useWordmark = brandStyle === 'wordmark'
   const links = dynamicLinks.length > 0 ? dynamicLinks : navLinks
 
   useEffect(() => {
@@ -173,21 +196,73 @@ export function PublicHeader(props: PublicHeaderProps) {
     [t]
   )
 
+  let headerLogo: React.ReactNode = (
+    <HeaderLogo
+      src={systemLogo}
+      loading={loading}
+      logoLoaded={logoLoaded}
+      className='size-full rounded-lg object-contain'
+    />
+  )
+  if (loading) {
+    headerLogo = <Skeleton className='size-full rounded-lg' />
+  } else if (customLogo) {
+    headerLogo = customLogo
+  }
+
+  let desktopAuthControl: React.ReactNode = (
+    <Button
+      size='sm'
+      className={cn(
+        'text-xs font-medium',
+        isHome
+          ? 'h-10 rounded-none bg-[#93D2AD] px-5 text-[#102018] hover:bg-[#A5DEBD]'
+          : 'bg-primary text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-4'
+      )}
+      render={<Link to='/sign-in' />}
+    >
+      {t('Sign in')}
+    </Button>
+  )
+  if (loading) {
+    desktopAuthControl = <Skeleton className='h-8 w-20 rounded-lg' />
+  } else if (isAuthenticated) {
+    desktopAuthControl = <ProfileDropdown />
+  }
+
+  /*
+   * Heights (16.6): the landing masthead keeps its tall unscrolled state;
+   * inner pages hold a stable 64px (mobile) / 72px (desktop) bar and only
+   * gain a shadow on scroll — no height morphing, no floating pill.
+   */
+  let headerHeightClass = 'h-16 md:h-[72px]'
+  if (isHome) {
+    headerHeightClass = scrolled ? 'h-16' : 'h-16 md:h-[104px]'
+  }
+
   return (
     <>
-      <header className='pointer-events-none fixed inset-x-0 top-0 z-50'>
+      <header
+        className={cn(
+          'pointer-events-none fixed inset-x-0 top-0 z-50 border-b backdrop-blur-xl',
+          isHome
+            ? 'border-white/10 bg-[#0A130E]/92'
+            : 'border-border/70 bg-background/90'
+        )}
+      >
         <div
           className={cn(
-            'pointer-events-auto mx-auto transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            scrolled ? 'max-w-[52rem] px-3 pt-3' : 'max-w-7xl px-4 pt-0 md:px-6'
+            'pointer-events-auto mx-auto px-5 transition-all duration-300 md:px-10',
+            isHome && 'max-w-[1536px] lg:px-14 xl:px-14',
+            !isHome &&
+              (contentWidth === 'wide' ? 'max-w-[1440px]' : 'max-w-[1184px]'),
+            scrolled && 'shadow-[0_8px_28px_-28px_rgb(20_31_23/70%)]'
           )}
         >
           <nav
             className={cn(
-              'flex items-center justify-between transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
-              scrolled
-                ? 'bg-background/60 ring-border/50 h-12 rounded-2xl pr-1.5 pl-4 shadow-[0_2px_16px_-6px_rgba(0,0,0,0.08),0_0_0_0.5px_rgba(0,0,0,0.02)] ring-[0.5px] backdrop-blur-2xl dark:shadow-[0_2px_16px_-6px_rgba(0,0,0,0.4)]'
-                : 'h-16 px-2'
+              'flex items-center justify-between px-0 transition-all duration-300',
+              headerHeightClass
             )}
           >
             {/* Logo */}
@@ -195,33 +270,61 @@ export function PublicHeader(props: PublicHeaderProps) {
               to={homeUrl}
               className='group flex shrink-0 items-center gap-2.5'
             >
-              <div className='flex size-7 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105'>
-                {loading ? (
-                  <Skeleton className='size-full rounded-lg' />
-                ) : customLogo ? (
-                  customLogo
-                ) : (
-                  <HeaderLogo
-                    src={systemLogo}
-                    loading={loading}
-                    logoLoaded={logoLoaded}
-                    className='size-full rounded-lg object-contain'
-                  />
-                )}
-              </div>
-              <span className='text-sm font-semibold tracking-tight'>
-                {loading ? <Skeleton className='h-4 w-16' /> : displaySiteName}
-              </span>
+              {useWordmark ? (
+                <>
+                  <span
+                    className={cn(
+                      'leading-none font-semibold',
+                      isHome
+                        ? 'text-[#93D2AD]'
+                        : 'text-[#164A35] dark:text-[#93D2AD]',
+                      isHome
+                        ? 'text-[30px] md:text-[38px]'
+                        : 'text-[26px] md:text-[28px]'
+                    )}
+                  >
+                    {displaySiteName}
+                  </span>
+                  <span
+                    className={cn(
+                      'hidden max-w-32 border-l pl-3 text-[10px] leading-[1.2] font-semibold uppercase lg:block',
+                      isHome
+                        ? 'border-white/25 text-white/70'
+                        : 'border-black/20 dark:border-white/20'
+                    )}
+                  >
+                    {t('Unified model API service')}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <div className='flex size-7 shrink-0 items-center justify-center'>
+                    {headerLogo}
+                  </div>
+                  <span className='text-sm font-semibold tracking-tight'>
+                    {loading ? (
+                      <Skeleton className='h-4 w-16' />
+                    ) : (
+                      displaySiteName
+                    )}
+                  </span>
+                </>
+              )}
             </Link>
 
             {/* Desktop nav */}
-            <div className='hidden items-center gap-0.5 sm:flex'>
-              {links.map((link, i) => {
+            <div
+              className={cn(
+                'hidden items-center gap-0.5 md:flex',
+                isHome && 'text-white/85 [&_button]:text-white/85'
+              )}
+            >
+              {links.map((link) => {
                 const isActive = pathname === link.href
                 if (link.external) {
                   return (
                     <a
-                      key={i}
+                      key={`${link.href}:${link.title}`}
                       href={link.href}
                       target='_blank'
                       rel='noopener noreferrer'
@@ -229,7 +332,10 @@ export function PublicHeader(props: PublicHeaderProps) {
                       tabIndex={link.disabled ? -1 : undefined}
                       onClick={(event) => handleNavLinkClick(event, link)}
                       className={cn(
-                        'text-muted-foreground hover:text-foreground rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors duration-200',
+                        'rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors duration-200',
+                        isHome
+                          ? 'text-white/65 hover:text-white'
+                          : 'text-muted-foreground hover:text-foreground',
                         link.disabled && 'pointer-events-none opacity-50'
                       )}
                     >
@@ -237,21 +343,37 @@ export function PublicHeader(props: PublicHeaderProps) {
                     </a>
                   )
                 }
+                let linkStateClass = isHome
+                  ? 'text-white/65 hover:text-white'
+                  : 'text-muted-foreground hover:text-foreground'
+                if (isActive) {
+                  linkStateClass = isHome ? 'text-white' : 'text-foreground'
+                }
+
                 return (
                   <Link
-                    key={i}
+                    key={`${link.href}:${link.title}`}
                     to={link.href}
                     disabled={link.disabled}
                     onClick={(event) => handleNavLinkClick(event, link)}
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-[13px] font-medium transition-colors duration-200',
-                      isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:text-foreground',
+                      isActive && 'relative',
+                      linkStateClass,
                       link.disabled && 'pointer-events-none opacity-50'
                     )}
                   >
                     {t(link.title)}
+                    {/* Inner pages mark the current route with a baseline
+                        bar on the header edge (16.6) — text plus edge state,
+                        never a pill background. */}
+                    {isActive && !isHome && (
+                      <span
+                        aria-hidden='true'
+                        className='bg-primary absolute inset-x-3 -bottom-4 h-0.5 md:-bottom-5'
+                      />
+                    )}
                   </Link>
                 )
               })}
@@ -259,7 +381,12 @@ export function PublicHeader(props: PublicHeaderProps) {
               {(showLanguageSwitcher ||
                 showThemeSwitch ||
                 showNotifications) && (
-                <div className='bg-border/40 mx-2 h-4 w-px' />
+                <div
+                  className={cn(
+                    'mx-2 h-4 w-px',
+                    isHome ? 'bg-white/20' : 'bg-border/40'
+                  )}
+                />
               )}
 
               {showLanguageSwitcher && <LanguageSwitcher />}
@@ -279,27 +406,25 @@ export function PublicHeader(props: PublicHeaderProps) {
 
               {showAuthButtons && (
                 <>
-                  <div className='bg-border/40 mx-1 h-4 w-px' />
-                  {loading ? (
-                    <Skeleton className='h-8 w-20 rounded-lg' />
-                  ) : isAuthenticated ? (
-                    <ProfileDropdown />
-                  ) : (
-                    <Button
-                      size='sm'
-                      className='h-8 rounded-lg px-3.5 text-xs font-medium'
-                      render={<Link to='/sign-in' />}
-                    >
-                      {t('Sign in')}
-                    </Button>
-                  )}
+                  <div
+                    className={cn(
+                      'mx-1 h-4 w-px',
+                      isHome ? 'bg-white/20' : 'bg-border/40'
+                    )}
+                  />
+                  {desktopAuthControl}
                 </>
               )}
             </div>
 
             {/* Mobile: compact actions + hamburger */}
-            <div className='flex items-center gap-2 sm:hidden'>
-              {showThemeSwitch && <ThemeSwitch />}
+            <div
+              className={cn(
+                'flex items-center gap-1 md:hidden',
+                isHome && 'text-white/85 [&_button]:text-white/85'
+              )}
+            >
+              {showThemeSwitch && <ThemeSwitch className='size-11' />}
               {showAuthButtons && !loading && isAuthenticated && (
                 <ProfileDropdown />
               )}
@@ -307,9 +432,11 @@ export function PublicHeader(props: PublicHeaderProps) {
                 type='button'
                 variant='ghost'
                 size='icon'
-                className='size-9'
+                className='size-11'
                 onClick={() => setMobileOpen((v) => !v)}
                 aria-label={t('Toggle navigation menu')}
+                aria-expanded={mobileOpen}
+                aria-controls='public-mobile-navigation'
               >
                 <div className='relative size-4'>
                   <span
@@ -339,8 +466,9 @@ export function PublicHeader(props: PublicHeaderProps) {
 
       {/* Mobile full-screen overlay */}
       <div
+        id='public-mobile-navigation'
         className={cn(
-          'bg-background/98 fixed inset-0 z-40 backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] sm:pointer-events-none sm:hidden',
+          'bg-background/98 fixed inset-0 z-40 backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:pointer-events-none md:hidden',
           mobileOpen
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none opacity-0'
@@ -364,7 +492,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               if (link.external) {
                 return (
                   <a
-                    key={i}
+                    key={`${link.href}:${link.title}`}
                     href={link.href}
                     target='_blank'
                     rel='noopener noreferrer'
@@ -380,7 +508,7 @@ export function PublicHeader(props: PublicHeaderProps) {
               }
               return (
                 <Link
-                  key={i}
+                  key={`${link.href}:${link.title}`}
                   to={link.href}
                   disabled={link.disabled}
                   onClick={(event) => handleNavLinkClick(event, link, true)}

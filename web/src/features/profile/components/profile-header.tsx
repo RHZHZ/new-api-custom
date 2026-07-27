@@ -47,28 +47,27 @@ export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
     return (
       <Card data-card-hover='false' className='gap-0 overflow-hidden py-0'>
         <CardContent className='p-4 sm:p-5'>
-          <div className='flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left'>
-            <Skeleton className='h-16 w-16 rounded-2xl' />
-            <div className='space-y-3'>
-              <div className='flex flex-col items-center gap-2 sm:flex-row sm:justify-start'>
-                <Skeleton className='h-8 w-48' />
+          <div className='flex items-center gap-3 text-left sm:gap-4'>
+            <Skeleton className='h-12 w-12 shrink-0 rounded-lg sm:h-16 sm:w-16' />
+            <div className='min-w-0 flex-1 space-y-1.5 sm:space-y-3'>
+              <div className='flex items-center gap-2'>
+                <Skeleton className='h-7 w-32 sm:h-8 sm:w-48' />
                 <Skeleton className='h-5 w-16' />
               </div>
-              <div className='flex flex-col items-center gap-1 sm:flex-row sm:justify-start sm:gap-4'>
+              <div className='flex items-center gap-2 sm:gap-4'>
                 <Skeleton className='h-4 w-24' />
-                <Skeleton className='h-4 w-40' />
-                <Skeleton className='h-4 w-20' />
+                <Skeleton className='hidden h-4 w-40 sm:block' />
               </div>
             </div>
           </div>
         </CardContent>
         <div className='border-t'>
-          <div className='divide-border/60 grid grid-cols-1 divide-y sm:grid-cols-3 sm:divide-x sm:divide-y-0'>
+          <div className='divide-border/60 grid grid-cols-3 divide-x'>
             {['balance', 'usage', 'requests'].map((key) => (
-              <div key={key} className='px-4 py-3.5 sm:px-5 sm:py-4'>
-                <Skeleton className='h-3.5 w-20' />
-                <Skeleton className='mt-2 h-7 w-28' />
-                <Skeleton className='mt-1.5 h-3.5 w-24' />
+              <div key={key} className='min-w-0 px-3 py-3 sm:px-5 sm:py-4'>
+                <Skeleton className='h-3.5 w-12 sm:w-20' />
+                <Skeleton className='mt-2 h-6 w-16 sm:h-7 sm:w-28' />
+                <Skeleton className='mt-1.5 hidden h-3.5 w-24 md:block' />
               </div>
             ))}
           </div>
@@ -118,9 +117,9 @@ export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
     <Card data-card-hover='false' className='gap-0 overflow-hidden py-0'>
       <CardContent className='p-3 sm:p-5'>
         <div className='flex items-center gap-3 text-left sm:gap-4'>
-          <Avatar className='ring-background h-12 w-12 rounded-xl text-sm ring-2 sm:h-16 sm:w-16 sm:rounded-2xl sm:text-lg sm:ring-4'>
+          <Avatar className='ring-background h-12 w-12 rounded-lg text-sm ring-2 sm:h-16 sm:w-16 sm:text-lg sm:ring-4'>
             <AvatarFallback
-              className='rounded-xl font-semibold text-white sm:rounded-2xl'
+              className='rounded-lg font-semibold text-white'
               style={avatarFallbackStyle}
             >
               {avatarFallback}
@@ -129,9 +128,9 @@ export function ProfileHeader({ profile, loading }: ProfileHeaderProps) {
 
           <div className='min-w-0 flex-1 space-y-1.5 sm:space-y-3'>
             <div className='flex min-w-0 items-center gap-2'>
-              <h1 className='truncate text-xl font-semibold tracking-tight sm:text-2xl'>
+              <p className='truncate text-xl font-semibold tracking-tight sm:text-2xl'>
                 {displayName}
-              </h1>
+              </p>
               <StatusBadge
                 label={roleLabel}
                 variant='neutral'

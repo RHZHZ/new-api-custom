@@ -94,8 +94,10 @@ export function OAuthCallbackScreen({
     <AuthLayout>
       <div className='w-full space-y-8'>
         <div className='flex flex-col items-center space-y-4 text-center'>
-          <div className='bg-muted flex h-16 w-16 items-center justify-center rounded-2xl'>
-            <Icon className='h-8 w-8' />
+          {/* Status icon at the shared compact scale (16.8) — no large
+              rounded-2xl icon container. */}
+          <div className='bg-muted text-muted-foreground flex size-10 items-center justify-center rounded-md'>
+            <Icon className='size-5' />
           </div>
           <div className='space-y-2'>
             <h2 className='text-center text-2xl font-semibold tracking-tight'>

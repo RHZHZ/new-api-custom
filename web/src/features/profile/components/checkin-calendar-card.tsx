@@ -380,7 +380,7 @@ export function CheckinCalendarCard({
                     <Button
                       variant='ghost'
                       size='icon'
-                      className='h-7 w-7 sm:h-8 sm:w-8'
+                      className='h-11 w-11 md:h-8 md:w-8'
                       onClick={handlePrevMonth}
                     >
                       <ChevronLeft className='h-3.5 w-3.5 sm:h-4 sm:w-4' />
@@ -388,7 +388,7 @@ export function CheckinCalendarCard({
                     <Button
                       variant='ghost'
                       size='icon'
-                      className='h-7 w-7 sm:h-8 sm:w-8'
+                      className='h-11 w-11 md:h-8 md:w-8'
                       onClick={handleNextMonth}
                     >
                       <ChevronRight className='h-3.5 w-3.5 sm:h-4 sm:w-4' />
@@ -426,7 +426,7 @@ export function CheckinCalendarCard({
                         variant={isToday ? 'default' : 'ghost'}
                         disabled={!dayObj.isCurrentMonth}
                         className={cn(
-                          'relative flex h-9 w-full flex-col items-center justify-center rounded-lg px-0 text-xs font-medium sm:h-10 sm:text-sm',
+                          'relative flex h-11 w-full flex-col items-center justify-center rounded-md px-0 text-xs font-medium md:h-10 md:text-sm',
                           !dayObj.isCurrentMonth &&
                             'text-muted-foreground/40 cursor-default',
                           !isToday && isCheckedIn && 'font-semibold'

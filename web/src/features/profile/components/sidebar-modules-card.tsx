@@ -218,13 +218,13 @@ export function SidebarModulesCard() {
           </div>
         </div>
       </CardHeader>
-      <CardContent className='space-y-4 p-3 sm:space-y-5 sm:p-5'>
+      <CardContent className='p-3 sm:p-5'>
         {sectionDefs.map((section) => {
           const sectionEnabled = config[section.key]?.enabled !== false
           return (
             <div
               key={section.key}
-              className='bg-background/60 rounded-xl border p-3'
+              className='border-b py-4 first:pt-0 last:border-b-0'
             >
               <div className='flex items-start justify-between gap-3'>
                 <div className='min-w-0'>
@@ -238,11 +238,11 @@ export function SidebarModulesCard() {
                   onCheckedChange={(v) => toggleSection(section.key, v)}
                 />
               </div>
-              <div className='mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-1'>
+              <div className='mt-3 divide-y border-y'>
                 {section.modules.map((mod) => (
                   <div
                     key={mod.key}
-                    className={`flex min-h-16 items-center justify-between rounded-lg border p-3 ${
+                    className={`flex min-h-16 items-center justify-between py-3 ${
                       sectionEnabled ? '' : 'opacity-50'
                     }`}
                   >

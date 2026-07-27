@@ -29,14 +29,14 @@ import {
   Radio,
   ServerCog,
   Settings,
+  ShieldCheck,
   Ticket,
-  User,
   Users,
   Wallet,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { type SidebarData } from '@/components/layout/types'
+import type { SidebarData } from '@/components/layout/types'
 import { ROLE } from '@/lib/roles'
 
 /**
@@ -52,7 +52,7 @@ export function useSidebarData(): SidebarData {
     navGroups: [
       {
         id: 'chat',
-        title: t('Chat'),
+        title: t('Tools'),
         items: [
           {
             title: t('Playground'),
@@ -67,19 +67,31 @@ export function useSidebarData(): SidebarData {
         ],
       },
       {
-        id: 'general',
-        title: t('General'),
+        id: 'workspace',
+        title: t('Workspace'),
         items: [
           {
             title: t('Overview'),
             url: '/dashboard/overview',
             icon: Activity,
           },
+        ],
+      },
+      {
+        id: 'usage',
+        title: t('Usage'),
+        items: [
           {
-            title: t('Dashboard'),
+            title: t('Usage Analysis'),
             url: '/dashboard/models',
             icon: LayoutDashboard,
           },
+        ],
+      },
+      {
+        id: 'account',
+        title: t('Account'),
+        items: [
           {
             title: t('API Keys'),
             url: '/keys',
@@ -97,21 +109,15 @@ export function useSidebarData(): SidebarData {
             configUrls: ['/usage-logs/drawing', '/usage-logs/task'],
             icon: ListTodo,
           },
-        ],
-      },
-      {
-        id: 'personal',
-        title: t('Personal'),
-        items: [
           {
             title: t('Wallet'),
             url: '/wallet',
             icon: Wallet,
           },
           {
-            title: t('Profile'),
+            title: t('Account & Security'),
             url: '/profile',
-            icon: User,
+            icon: ShieldCheck,
           },
         ],
       },

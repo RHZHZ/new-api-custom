@@ -36,47 +36,47 @@ export function CTA(props: CTAProps) {
   }
 
   return (
-    <section className='relative z-10 overflow-hidden px-6 py-24 md:py-32'>
-      {/* Gradient mesh background */}
-      <div
-        aria-hidden
-        className='absolute inset-0 -z-10 opacity-20 dark:opacity-[0.08]'
-        style={{
-          background: [
-            'radial-gradient(ellipse 50% 50% at 30% 50%, oklch(0.7 0.15 250 / 70%) 0%, transparent 70%)',
-            'radial-gradient(ellipse 40% 40% at 70% 40%, oklch(0.65 0.12 200 / 50%) 0%, transparent 70%)',
-          ].join(', '),
-        }}
-      />
-
-      <AnimateInView
-        className='mx-auto max-w-2xl text-center'
-        animation='scale-in'
-      >
-        <h2 className='text-2xl leading-tight font-bold tracking-tight md:text-4xl'>
-          {t('Ready to simplify')}
-          <br />
-          <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
-            {t('your AI integration?')}
+    <section
+      aria-labelledby='enterprise-cta-title'
+      className='border-border border-b bg-[#F1F0EA] px-5 py-[72px] md:px-10 md:py-[112px] dark:bg-[#101512]'
+    >
+      <AnimateInView className='mx-auto max-w-[1248px] border-t border-black/18 pt-5 dark:border-white/18'>
+        <div className='grid gap-8 md:grid-cols-[180px_1fr]'>
+          <span className='text-[10px] font-semibold text-[#164A35] dark:text-[#93D2AD]'>
+            04 / RAPI
           </span>
-        </h2>
-        <p className='text-muted-foreground/80 mx-auto mt-5 max-w-md text-sm leading-relaxed md:text-base'>
-          {t(
-            'Deploy your own gateway and start routing requests through your configured upstream services.'
-          )}
-        </p>
-        <div className='mt-8 flex items-center justify-center gap-3'>
-          <Button className='group rounded-lg' render={<Link to='/sign-up' />}>
-            {t('Get Started')}
-            <ArrowRight className='ml-1 size-3.5 transition-transform duration-200 group-hover:translate-x-0.5' />
-          </Button>
-          <Button
-            variant='outline'
-            className='border-border/50 hover:border-border hover:bg-muted/50 rounded-lg'
-            render={<Link to='/pricing' />}
-          >
-            {t('View Pricing')}
-          </Button>
+          <div className='grid gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end'>
+            <div className='max-w-3xl'>
+              <h2
+                id='enterprise-cta-title'
+                className='text-4xl leading-[1.08] font-semibold sm:text-[48px] md:text-[56px]'
+              >
+                {t('Start calling supported models with RAPI')}
+              </h2>
+              <p className='mt-7 max-w-2xl text-base leading-8 text-black/56 dark:text-white/56'>
+                {t('One endpoint, one key, and a clear view of every request.')}
+              </p>
+            </div>
+            <div className='flex flex-col gap-3 sm:flex-row lg:shrink-0'>
+              <Button
+                className='group h-11 rounded-[2px] bg-[#164A35] px-5 text-sm font-semibold text-white hover:bg-[#103B2A] dark:bg-[#93D2AD] dark:text-[#102018] dark:hover:bg-[#A5DEBD]'
+                render={<Link to='/sign-up' />}
+              >
+                {t('Get Started')}
+                <ArrowRight
+                  aria-hidden='true'
+                  className='ml-1.5 size-4 transition-transform group-hover:translate-x-0.5'
+                />
+              </Button>
+              <Button
+                variant='outline'
+                className='h-11 rounded-[2px] border-black/20 bg-transparent px-5 text-sm font-semibold dark:border-white/20'
+                render={<Link to='/pricing' />}
+              >
+                {t('View Pricing')}
+              </Button>
+            </div>
+          </div>
         </div>
       </AnimateInView>
     </section>

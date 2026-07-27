@@ -404,7 +404,7 @@ export function AccountBindingsTab({
 
   return (
     <>
-      <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3'>
+      <div className='divide-y overflow-hidden rounded-md border'>
         {bindings.map((binding) => {
           let actionLabel = t('Bind')
           if (binding.isBound && binding.id === 'email') {
@@ -416,7 +416,7 @@ export function AccountBindingsTab({
           return (
             <div
               key={binding.id}
-              className='flex items-center justify-between gap-2.5 rounded-lg border p-2.5 sm:gap-3 sm:p-3'
+              className='flex min-h-14 items-center justify-between gap-2.5 p-3 sm:gap-3'
             >
               <div className='flex min-w-0 items-center gap-2.5 sm:gap-3'>
                 <div className='bg-muted shrink-0 rounded-md p-1.5 sm:p-2'>
@@ -441,7 +441,7 @@ export function AccountBindingsTab({
               <Button
                 variant='outline'
                 size='sm'
-                className='h-7 shrink-0 px-2.5 text-xs'
+                className='h-11 shrink-0 px-3 text-xs md:h-7 md:px-2.5'
                 onClick={binding.onBind}
                 disabled={binding.isBound && binding.id !== 'email'}
               >
@@ -459,7 +459,7 @@ export function AccountBindingsTab({
           <p className='text-muted-foreground mb-3 text-sm font-medium'>
             {t('Custom OAuth')}
           </p>
-          <div className='grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3'>
+          <div className='divide-y overflow-hidden rounded-md border'>
             {customProviders.map((provider) => {
               const binding = customBindings.find(
                 (b) => b.provider_id === String(provider.id)
@@ -468,7 +468,7 @@ export function AccountBindingsTab({
               return (
                 <div
                   key={provider.id}
-                  className='flex items-center justify-between gap-2.5 rounded-lg border p-2.5 sm:gap-3 sm:p-3'
+                  className='flex min-h-14 items-center justify-between gap-2.5 p-3 sm:gap-3'
                 >
                   <div className='flex min-w-0 items-center gap-2.5 sm:gap-3'>
                     <div className='bg-muted shrink-0 rounded-md p-1.5 sm:p-2'>
@@ -496,7 +496,7 @@ export function AccountBindingsTab({
                     <Button
                       variant='ghost'
                       size='sm'
-                      className='text-destructive h-7 shrink-0 px-2.5 text-xs'
+                      className='text-destructive h-11 shrink-0 px-3 text-xs md:h-7 md:px-2.5'
                       onClick={() => setUnbindTarget(binding)}
                     >
                       <Unlink className='mr-1 h-3 w-3' />
@@ -506,7 +506,7 @@ export function AccountBindingsTab({
                     <Button
                       variant='outline'
                       size='sm'
-                      className='h-7 shrink-0 px-2.5 text-xs'
+                      className='h-11 shrink-0 px-3 text-xs md:h-7 md:px-2.5'
                       onClick={() => handleBindCustomOAuth(provider)}
                     >
                       {t('Bind')}

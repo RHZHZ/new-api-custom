@@ -255,7 +255,11 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>{t('Username')}</FormLabel>
               <FormControl>
-                <Input placeholder={t('Enter your username')} {...field} />
+                <Input
+                  className='h-12 text-base md:text-[15px]'
+                  placeholder={t('Enter your username')}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -271,6 +275,7 @@ export function SignUpForm({
               <FormLabel>{t('Password')}</FormLabel>
               <FormControl>
                 <PasswordInput
+                  className='h-12 text-base md:text-[15px]'
                   placeholder={t('Enter password (8-20 characters)')}
                   {...field}
                 />
@@ -288,7 +293,11 @@ export function SignUpForm({
             <FormItem>
               <FormLabel>{t('Confirm password')}</FormLabel>
               <FormControl>
-                <PasswordInput placeholder={t('Confirm password')} {...field} />
+                <PasswordInput
+                  className='h-12 text-base md:text-[15px]'
+                  placeholder={t('Confirm password')}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -309,6 +318,7 @@ export function SignUpForm({
                   </FormLabel>
                   <FormControl>
                     <Input
+                      className='h-12 text-base md:text-[15px]'
                       placeholder={t('name@example.com')}
                       type='email'
                       {...field}
@@ -323,6 +333,7 @@ export function SignUpForm({
             <div className='flex items-end gap-2'>
               <div className='flex-1'>
                 <Input
+                  className='h-12 text-base md:text-[15px]'
                   placeholder={t('Verification code')}
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
@@ -331,6 +342,7 @@ export function SignUpForm({
               <Button
                 variant='outline'
                 type='button'
+                className='h-12'
                 disabled={
                   isLoading ||
                   isSendingCode ||
@@ -367,7 +379,7 @@ export function SignUpForm({
         {/* Submit Button */}
         <Button
           type='submit'
-          className='mt-2 w-full justify-center gap-2'
+          className='mt-1 h-12 w-full justify-center gap-2'
           disabled={
             isLoading ||
             (requiresLegalConsent && !agreedToLegal) ||

@@ -36,11 +36,17 @@ import { useIsSidebarModuleVisible } from '@/hooks/use-sidebar-config'
 import { useUserDisplay } from '@/hooks/use-user-display'
 import { getUserAvatarFallback, getUserAvatarStyle } from '@/lib/avatar'
 import { ROLE } from '@/lib/roles'
+import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 
 const avatarFallbackClassName = 'font-semibold text-white'
 
-export function ProfileDropdown() {
+type ProfileDropdownProps = {
+  className?: string
+  avatarClassName?: string
+}
+
+export function ProfileDropdown(props: ProfileDropdownProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [open, setOpen] = useDialogState()
@@ -59,9 +65,14 @@ export function ProfileDropdown() {
     <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger
-          render={<Button variant='ghost' className='relative size-6 p-0' />}
+          render={
+            <Button
+              variant='ghost'
+              className={cn('relative size-6 p-0', props.className)}
+            />
+          }
         >
-          <Avatar className='size-6'>
+          <Avatar className={cn('size-6', props.avatarClassName)}>
             <AvatarFallback
               className={`${avatarFallbackClassName} text-[11px]`}
               style={avatarFallbackStyle}
@@ -104,7 +115,7 @@ export function ProfileDropdown() {
 
           <DropdownMenuItem onClick={() => navigate({ to: '/profile' })}>
             <User className='size-4' />
-            {t('Profile')}
+            {t('Account & Security')}
           </DropdownMenuItem>
 
           {isWalletVisible && (
