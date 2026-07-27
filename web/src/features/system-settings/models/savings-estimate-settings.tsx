@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Save } from 'lucide-react'
+import { Code2, Save } from 'lucide-react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -24,13 +24,16 @@ import { toast } from 'sonner'
 import { JsonCodeEditor } from '@/components/json-code-editor'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-import { useUpdateOption } from '../hooks/use-update-option'
 import {
-  formatJsonForTextarea,
-  normalizeJsonString,
-  validateJsonString,
-} from './utils'
+  SettingsSwitchField,
+  SettingsSwitchRow,
+} from '../components/settings-form-layout'
+import { useUpdateOption } from '../hooks/use-update-option'
+import { normalizeJsonString, validateJsonString } from './utils'
 
 const OPTION_KEY = 'SavingsEstimateSetting'
 
@@ -47,24 +50,82 @@ const DEFAULT_SETTING = {
   official_prices: {},
 }
 
+type SavingsEstimateSetting = Record<string, unknown> & typeof DEFAULT_SETTING
+
+type BooleanSettingKey =
+  | 'enabled'
+  | 'show_on_dashboard'
+  | 'show_on_usage_logs'
+  | 'local_pricing_official_confirmed'
+  | 'rebuild_legacy_logs'
+  | 'require_official_confirmation'
+
+type NumberSettingKey =
+  | 'official_price_stale_days'
+  | 'max_summary_days'
+  | 'max_summary_log_rows'
+
 type SavingsEstimateSettingsProps = {
   defaultValue: string
 }
 
-function savingsSettingText(value: string): string {
-  if (!value.trim()) return JSON.stringify(DEFAULT_SETTING, null, 2)
+function isObject(value: unknown): value is Record<string, unknown> {
+  return value != null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function parseSavingsSetting(value: string): SavingsEstimateSetting | null {
   try {
-    const parsed: unknown = JSON.parse(value)
-    if (parsed == null || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      return formatJsonForTextarea(value)
+    const parsed: unknown = JSON.parse(value.trim() || '{}')
+    if (!isObject(parsed)) return null
+
+    const setting = {
+      ...DEFAULT_SETTING,
+      ...parsed,
+    } as SavingsEstimateSetting
+    delete setting.reference_price_source
+    delete setting.include_unpriced_models
+
+    for (const key of [
+      'enabled',
+      'show_on_dashboard',
+      'show_on_usage_logs',
+      'local_pricing_official_confirmed',
+      'rebuild_legacy_logs',
+      'require_official_confirmation',
+    ] satisfies BooleanSettingKey[]) {
+      if (typeof setting[key] !== 'boolean') {
+        setting[key] = DEFAULT_SETTING[key]
+      }
     }
-    const current = { ...(parsed as Record<string, unknown>) }
-    delete current.reference_price_source
-    delete current.include_unpriced_models
-    return JSON.stringify({ ...DEFAULT_SETTING, ...current }, null, 2)
+
+    for (const key of [
+      'official_price_stale_days',
+      'max_summary_days',
+      'max_summary_log_rows',
+    ] satisfies NumberSettingKey[]) {
+      if (
+        typeof setting[key] !== 'number' ||
+        !Number.isFinite(setting[key]) ||
+        setting[key] <= 0
+      ) {
+        setting[key] = DEFAULT_SETTING[key]
+      } else {
+        setting[key] = Math.floor(setting[key])
+      }
+    }
+
+    if (!isObject(setting.official_prices)) {
+      setting.official_prices = {}
+    }
+    return setting
   } catch {
-    return formatJsonForTextarea(value)
+    return null
   }
+}
+
+function formatSavingsSetting(value: string): string {
+  const setting = parseSavingsSetting(value)
+  return setting ? JSON.stringify(setting, null, 2) : value
 }
 
 export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
@@ -72,21 +133,24 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
 }: SavingsEstimateSettingsProps) {
   const { t } = useTranslation()
   const updateOption = useUpdateOption()
+  const [editMode, setEditMode] = useState<'visual' | 'json'>('visual')
+  const [setting, setSetting] = useState<SavingsEstimateSetting>(
+    () => parseSavingsSetting(defaultValue) ?? { ...DEFAULT_SETTING }
+  )
   const [jsonText, setJsonText] = useState(() =>
-    savingsSettingText(defaultValue)
+    formatSavingsSetting(defaultValue)
   )
 
   useEffect(() => {
-    setJsonText(savingsSettingText(defaultValue))
+    const nextSetting = parseSavingsSetting(defaultValue)
+    if (nextSetting) setSetting(nextSetting)
+    setJsonText(formatSavingsSetting(defaultValue))
   }, [defaultValue])
 
   const validation = useMemo(
     () =>
       validateJsonString(jsonText, {
-        predicate: (parsed) =>
-          parsed != null &&
-          typeof parsed === 'object' &&
-          !Array.isArray(parsed),
+        predicate: isObject,
         predicateMessage: 'JSON must be an object',
       }),
     [jsonText]
@@ -96,16 +160,52 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
       ? t('JSON must be an object')
       : validation.message || t('Invalid JSON')
 
+  const updateBoolean = useCallback(
+    (key: BooleanSettingKey, checked: boolean) => {
+      setSetting((current) => ({ ...current, [key]: checked }))
+    },
+    []
+  )
+
+  const updateNumber = useCallback((key: NumberSettingKey, value: string) => {
+    const parsed = Number(value)
+    if (!Number.isFinite(parsed) || parsed < 1) return
+    setSetting((current) => ({
+      ...current,
+      [key]: Math.floor(parsed),
+    }))
+  }, [])
+
+  const handleModeChange = useCallback(
+    (nextMode: string) => {
+      if (nextMode === 'json') {
+        setJsonText(JSON.stringify(setting, null, 2))
+        setEditMode('json')
+        return
+      }
+
+      const nextSetting = parseSavingsSetting(jsonText)
+      if (!nextSetting) {
+        toast.error(validationMessage)
+        return
+      }
+      setSetting(nextSetting)
+      setJsonText(JSON.stringify(nextSetting, null, 2))
+      setEditMode('visual')
+    },
+    [jsonText, setting, validationMessage]
+  )
+
   const handleSave = useCallback(async () => {
-    if (!validation.valid) {
+    const currentText =
+      editMode === 'visual' ? JSON.stringify(setting) : jsonText
+    if (editMode === 'json' && !validation.valid) {
       toast.error(validationMessage)
       return
     }
 
-    const normalized = normalizeJsonString(jsonText)
-    const saved = normalizeJsonString(
-      defaultValue || JSON.stringify(DEFAULT_SETTING)
-    )
+    const normalized = normalizeJsonString(currentText)
+    const saved = normalizeJsonString(formatSavingsSetting(defaultValue))
     if (normalized === saved) {
       toast.info(t('No changes to save'))
       return
@@ -115,7 +215,18 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
       key: OPTION_KEY,
       value: normalized,
     })
-  }, [defaultValue, jsonText, t, updateOption, validation, validationMessage])
+  }, [
+    defaultValue,
+    editMode,
+    jsonText,
+    setting,
+    t,
+    updateOption,
+    validation,
+    validationMessage,
+  ])
+
+  const overrideCount = Object.keys(setting.official_prices).length
 
   return (
     <div className='space-y-4'>
@@ -127,17 +238,192 @@ export const SavingsEstimateSettings = memo(function SavingsEstimateSettings({
         </AlertDescription>
       </Alert>
 
-      <div className='space-y-2'>
-        <JsonCodeEditor value={jsonText} onChange={setJsonText} />
-        {!validation.valid && (
-          <p className='text-destructive text-sm'>{validationMessage}</p>
-        )}
-      </div>
+      <Tabs value={editMode} onValueChange={handleModeChange}>
+        <TabsList className='grid w-full grid-cols-2'>
+          <TabsTrigger value='visual'>{t('Visual')}</TabsTrigger>
+          <TabsTrigger value='json'>{t('JSON')}</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value='visual' className='mt-6 space-y-7'>
+          <section className='space-y-1'>
+            <h3 className='text-sm font-semibold'>{t('General')}</h3>
+            <div className='divide-border divide-y'>
+              <SettingsSwitchField
+                checked={setting.enabled}
+                onCheckedChange={(checked) => updateBoolean('enabled', checked)}
+                label={t('Enable savings estimates')}
+                description={t(
+                  'Calculate estimated savings using official model prices.'
+                )}
+              />
+              <SettingsSwitchField
+                checked={setting.show_on_dashboard}
+                onCheckedChange={(checked) =>
+                  updateBoolean('show_on_dashboard', checked)
+                }
+                label={t('Show on dashboard')}
+                description={t(
+                  'Show the savings summary and trend on the user dashboard.'
+                )}
+              />
+              <SettingsSwitchField
+                checked={setting.show_on_usage_logs}
+                onCheckedChange={(checked) =>
+                  updateBoolean('show_on_usage_logs', checked)
+                }
+                label={t('Show in usage logs')}
+                description={t(
+                  'Show request-level savings estimates in usage logs.'
+                )}
+              />
+            </div>
+          </section>
+
+          <section className='space-y-1 border-t pt-6'>
+            <h3 className='text-sm font-semibold'>{t('Official pricing')}</h3>
+            <div className='divide-border divide-y'>
+              <SettingsSwitchField
+                checked={setting.local_pricing_official_confirmed}
+                onCheckedChange={(checked) =>
+                  updateBoolean('local_pricing_official_confirmed', checked)
+                }
+                label={t('Confirm marketplace pricing as official')}
+                description={t(
+                  'Treat local model marketplace prices as official reference prices.'
+                )}
+              />
+              <SettingsSwitchField
+                checked={setting.require_official_confirmation}
+                onCheckedChange={(checked) =>
+                  updateBoolean('require_official_confirmation', checked)
+                }
+                label={t('Require official price confirmation')}
+                description={t(
+                  'Exclude prices that have not been confirmed as official.'
+                )}
+              />
+              <SettingsSwitchRow className='py-3'>
+                <div className='min-w-0 space-y-0.5'>
+                  <Label htmlFor='official-price-stale-days'>
+                    {t('Official price validity (days)')}
+                  </Label>
+                  <p className='text-muted-foreground text-xs'>
+                    {t(
+                      'Prices older than this are excluded from savings estimates.'
+                    )}
+                  </p>
+                </div>
+                <Input
+                  id='official-price-stale-days'
+                  type='number'
+                  min={1}
+                  step={1}
+                  className='w-28 shrink-0'
+                  value={setting.official_price_stale_days}
+                  onChange={(event) =>
+                    updateNumber(
+                      'official_price_stale_days',
+                      event.target.value
+                    )
+                  }
+                />
+              </SettingsSwitchRow>
+            </div>
+          </section>
+
+          <section className='space-y-1 border-t pt-6'>
+            <h3 className='text-sm font-semibold'>
+              {t('Historical estimates')}
+            </h3>
+            <div className='divide-border divide-y'>
+              <SettingsSwitchField
+                checked={setting.rebuild_legacy_logs}
+                onCheckedChange={(checked) =>
+                  updateBoolean('rebuild_legacy_logs', checked)
+                }
+                label={t('Recalculate legacy usage logs')}
+                description={t(
+                  'Estimate historical logs without a saved official price snapshot.'
+                )}
+              />
+              <SettingsSwitchRow className='py-3'>
+                <div className='min-w-0 space-y-0.5'>
+                  <Label htmlFor='max-summary-days'>
+                    {t('Maximum summary range (days)')}
+                  </Label>
+                  <p className='text-muted-foreground text-xs'>
+                    {t('Limit the date range of each savings summary query.')}
+                  </p>
+                </div>
+                <Input
+                  id='max-summary-days'
+                  type='number'
+                  min={1}
+                  step={1}
+                  className='w-28 shrink-0'
+                  value={setting.max_summary_days}
+                  onChange={(event) =>
+                    updateNumber('max_summary_days', event.target.value)
+                  }
+                />
+              </SettingsSwitchRow>
+              <SettingsSwitchRow className='py-3'>
+                <div className='min-w-0 space-y-0.5'>
+                  <Label htmlFor='max-summary-log-rows'>
+                    {t('Maximum scanned log rows')}
+                  </Label>
+                  <p className='text-muted-foreground text-xs'>
+                    {t('Limit the number of usage logs scanned per summary.')}
+                  </p>
+                </div>
+                <Input
+                  id='max-summary-log-rows'
+                  type='number'
+                  min={1}
+                  step={1}
+                  className='w-28 shrink-0'
+                  value={setting.max_summary_log_rows}
+                  onChange={(event) =>
+                    updateNumber('max_summary_log_rows', event.target.value)
+                  }
+                />
+              </SettingsSwitchRow>
+            </div>
+          </section>
+
+          <section className='flex flex-wrap items-center justify-between gap-3 border-t pt-6'>
+            <div className='min-w-0 space-y-0.5'>
+              <h3 className='text-sm font-semibold'>{t('Price overrides')}</h3>
+              <p className='text-muted-foreground text-xs'>
+                {t('{{count}} model price overrides', { count: overrideCount })}
+              </p>
+            </div>
+            <Button
+              type='button'
+              variant='outline'
+              size='sm'
+              onClick={() => handleModeChange('json')}
+            >
+              <Code2 data-icon='inline-start' />
+              {t('Manage in JSON')}
+            </Button>
+          </section>
+        </TabsContent>
+
+        <TabsContent value='json' className='mt-6 space-y-2'>
+          <JsonCodeEditor value={jsonText} onChange={setJsonText} />
+          {!validation.valid && (
+            <p className='text-destructive text-sm'>{validationMessage}</p>
+          )}
+        </TabsContent>
+      </Tabs>
 
       <div className='flex justify-end'>
         <Button
           onClick={handleSave}
-          disabled={updateOption.isPending || !validation.valid}
+          disabled={
+            updateOption.isPending || (editMode === 'json' && !validation.valid)
+          }
         >
           <Save data-icon='inline-start' />
           {updateOption.isPending

@@ -37,6 +37,40 @@ const newKeys = {
     'Clear usage and balance': 'Clear usage and balance',
     'Configure official pricing snapshots for user savings estimates.':
       'Configure official pricing snapshots for user savings estimates.',
+    'Calculate estimated savings using official model prices.':
+      'Calculate estimated savings using official model prices.',
+    'Confirm marketplace pricing as official':
+      'Confirm marketplace pricing as official',
+    'Enable savings estimates': 'Enable savings estimates',
+    'Estimate historical logs without a saved official price snapshot.':
+      'Estimate historical logs without a saved official price snapshot.',
+    'Exclude prices that have not been confirmed as official.':
+      'Exclude prices that have not been confirmed as official.',
+    'Historical estimates': 'Historical estimates',
+    'Limit the date range of each savings summary query.':
+      'Limit the date range of each savings summary query.',
+    'Limit the number of usage logs scanned per summary.':
+      'Limit the number of usage logs scanned per summary.',
+    'Manage in JSON': 'Manage in JSON',
+    'Maximum scanned log rows': 'Maximum scanned log rows',
+    'Maximum summary range (days)': 'Maximum summary range (days)',
+    'Official price validity (days)': 'Official price validity (days)',
+    'Official pricing': 'Official pricing',
+    'Price overrides': 'Price overrides',
+    'Prices older than this are excluded from savings estimates.':
+      'Prices older than this are excluded from savings estimates.',
+    'Recalculate legacy usage logs': 'Recalculate legacy usage logs',
+    'Require official price confirmation':
+      'Require official price confirmation',
+    'Show in usage logs': 'Show in usage logs',
+    'Show on dashboard': 'Show on dashboard',
+    'Show request-level savings estimates in usage logs.':
+      'Show request-level savings estimates in usage logs.',
+    'Show the savings summary and trend on the user dashboard.':
+      'Show the savings summary and trend on the user dashboard.',
+    'Treat local model marketplace prices as official reference prices.':
+      'Treat local model marketplace prices as official reference prices.',
+    '{{count}} model price overrides': '{{count}} model price overrides',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
       'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.',
     'Create separate keys for your projects and keep credentials under your control.':
@@ -113,6 +147,38 @@ const newKeys = {
     'Clear usage and balance': '用量与余额清晰可见',
     'Configure official pricing snapshots for user savings estimates.':
       '配置用于用户节省估算的官方定价快照。',
+    'Calculate estimated savings using official model prices.':
+      '根据模型官方定价计算预计节省金额。',
+    'Confirm marketplace pricing as official': '确认模型广场定价为官方价格',
+    'Enable savings estimates': '启用节省估算',
+    'Estimate historical logs without a saved official price snapshot.':
+      '估算未保存官方价格快照的历史日志。',
+    'Exclude prices that have not been confirmed as official.':
+      '排除尚未确认为官方价格的定价。',
+    'Historical estimates': '历史估算',
+    'Limit the date range of each savings summary query.':
+      '限制单次节省汇总查询的日期范围。',
+    'Limit the number of usage logs scanned per summary.':
+      '限制单次汇总扫描的使用日志数量。',
+    'Manage in JSON': '在 JSON 中管理',
+    'Maximum scanned log rows': '最大扫描日志数',
+    'Maximum summary range (days)': '最大汇总范围（天）',
+    'Official price validity (days)': '官方价格有效期（天）',
+    'Official pricing': '官方定价',
+    'Price overrides': '价格覆盖',
+    'Prices older than this are excluded from savings estimates.':
+      '超过该天数的价格不参与节省估算。',
+    'Recalculate legacy usage logs': '回算历史使用日志',
+    'Require official price confirmation': '要求确认官方价格',
+    'Show in usage logs': '在使用日志中显示',
+    'Show on dashboard': '在仪表盘显示',
+    'Show request-level savings estimates in usage logs.':
+      '在使用日志中显示每次请求的节省估算。',
+    'Show the savings summary and trend on the user dashboard.':
+      '在用户仪表盘中显示节省汇总和趋势。',
+    'Treat local model marketplace prices as official reference prices.':
+      '将本地模型广场价格视为官方参考价格。',
+    '{{count}} model price overrides': '{{count}} 个模型价格覆盖',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
       '默认使用模型广场中的本地官方定价；official_prices 仅用于覆盖例外模型。',
     'Create separate keys for your projects and keep credentials under your control.':
@@ -185,6 +251,38 @@ const newKeys = {
     'Clear usage and balance': '用量與餘額清楚可見',
     'Configure official pricing snapshots for user savings estimates.':
       '設定用於使用者節省估算的官方定價快照。',
+    'Calculate estimated savings using official model prices.':
+      '根據模型官方定價計算預估節省金額。',
+    'Confirm marketplace pricing as official': '確認模型廣場定價為官方價格',
+    'Enable savings estimates': '啟用節省估算',
+    'Estimate historical logs without a saved official price snapshot.':
+      '估算未儲存官方價格快照的歷史日誌。',
+    'Exclude prices that have not been confirmed as official.':
+      '排除尚未確認為官方價格的定價。',
+    'Historical estimates': '歷史估算',
+    'Limit the date range of each savings summary query.':
+      '限制單次節省彙總查詢的日期範圍。',
+    'Limit the number of usage logs scanned per summary.':
+      '限制單次彙總掃描的使用日誌數量。',
+    'Manage in JSON': '在 JSON 中管理',
+    'Maximum scanned log rows': '最大掃描日誌數',
+    'Maximum summary range (days)': '最大彙總範圍（天）',
+    'Official price validity (days)': '官方價格有效期（天）',
+    'Official pricing': '官方定價',
+    'Price overrides': '價格覆寫',
+    'Prices older than this are excluded from savings estimates.':
+      '超過該天數的價格不參與節省估算。',
+    'Recalculate legacy usage logs': '回算歷史使用日誌',
+    'Require official price confirmation': '要求確認官方價格',
+    'Show in usage logs': '在使用日誌中顯示',
+    'Show on dashboard': '在儀表板顯示',
+    'Show request-level savings estimates in usage logs.':
+      '在使用日誌中顯示每次請求的節省估算。',
+    'Show the savings summary and trend on the user dashboard.':
+      '在使用者儀表板中顯示節省彙總和趨勢。',
+    'Treat local model marketplace prices as official reference prices.':
+      '將本機模型廣場價格視為官方參考價格。',
+    '{{count}} model price overrides': '{{count}} 個模型價格覆寫',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
       '預設使用模型廣場中的本機官方定價；official_prices 僅用於覆寫例外模型。',
     'Create separate keys for your projects and keep credentials under your control.':
@@ -260,6 +358,41 @@ const newKeys = {
     'Clear usage and balance': 'Usage et solde transparents',
     'Configure official pricing snapshots for user savings estimates.':
       "Configurez les instantanés de tarifs officiels pour l'estimation des économies utilisateur.",
+    'Calculate estimated savings using official model prices.':
+      'Calculez les économies estimées à partir des tarifs officiels des modèles.',
+    'Confirm marketplace pricing as official':
+      'Confirmer les tarifs de la place de marché comme officiels',
+    'Enable savings estimates': "Activer l'estimation des économies",
+    'Estimate historical logs without a saved official price snapshot.':
+      'Estimez les journaux historiques sans instantané de tarif officiel enregistré.',
+    'Exclude prices that have not been confirmed as official.':
+      "Excluez les tarifs qui n'ont pas été confirmés comme officiels.",
+    'Historical estimates': 'Estimations historiques',
+    'Limit the date range of each savings summary query.':
+      'Limitez la période de chaque requête de synthèse des économies.',
+    'Limit the number of usage logs scanned per summary.':
+      "Limitez le nombre de journaux d'usage analysés par synthèse.",
+    'Manage in JSON': 'Gérer en JSON',
+    'Maximum scanned log rows': 'Nombre maximal de journaux analysés',
+    'Maximum summary range (days)': 'Période maximale de synthèse (jours)',
+    'Official price validity (days)': 'Validité du tarif officiel (jours)',
+    'Official pricing': 'Tarification officielle',
+    'Price overrides': 'Remplacements de tarifs',
+    'Prices older than this are excluded from savings estimates.':
+      "Les tarifs plus anciens sont exclus de l'estimation des économies.",
+    'Recalculate legacy usage logs': "Recalculer les anciens journaux d'usage",
+    'Require official price confirmation':
+      'Exiger la confirmation du tarif officiel',
+    'Show in usage logs': "Afficher dans les journaux d'usage",
+    'Show on dashboard': 'Afficher sur le tableau de bord',
+    'Show request-level savings estimates in usage logs.':
+      "Affichez l'estimation des économies par requête dans les journaux d'usage.",
+    'Show the savings summary and trend on the user dashboard.':
+      'Affichez la synthèse et la tendance des économies sur le tableau de bord utilisateur.',
+    'Treat local model marketplace prices as official reference prices.':
+      'Considérez les tarifs locaux de la place de marché comme tarifs officiels de référence.',
+    '{{count}} model price overrides':
+      '{{count}} remplacements de tarifs de modèle',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
       'Utilise par défaut les tarifs officiels locaux de la place de marché des modèles ; official_prices sert uniquement aux exceptions.',
     'Create separate keys for your projects and keep credentials under your control.':
@@ -341,6 +474,39 @@ const newKeys = {
     'Clear usage and balance': '利用量と残高を明確に把握',
     'Configure official pricing snapshots for user savings estimates.':
       'ユーザーの節約見積もりに使う公式価格スナップショットを設定します。',
+    'Calculate estimated savings using official model prices.':
+      'モデルの公式価格を使用して推定節約額を計算します。',
+    'Confirm marketplace pricing as official':
+      'モデル広場の価格を公式として確認',
+    'Enable savings estimates': '節約見積もりを有効化',
+    'Estimate historical logs without a saved official price snapshot.':
+      '保存済みの公式価格スナップショットがない過去ログを見積もります。',
+    'Exclude prices that have not been confirmed as official.':
+      '公式として確認されていない価格を除外します。',
+    'Historical estimates': '過去データの見積もり',
+    'Limit the date range of each savings summary query.':
+      '節約サマリーの各クエリの日付範囲を制限します。',
+    'Limit the number of usage logs scanned per summary.':
+      'サマリーごとに走査する使用ログ数を制限します。',
+    'Manage in JSON': 'JSON で管理',
+    'Maximum scanned log rows': '走査するログの最大行数',
+    'Maximum summary range (days)': 'サマリーの最大期間（日）',
+    'Official price validity (days)': '公式価格の有効期間（日）',
+    'Official pricing': '公式価格',
+    'Price overrides': '価格の上書き',
+    'Prices older than this are excluded from savings estimates.':
+      'この日数より古い価格は節約見積もりから除外されます。',
+    'Recalculate legacy usage logs': '過去の使用ログを再計算',
+    'Require official price confirmation': '公式価格の確認を必須にする',
+    'Show in usage logs': '使用ログに表示',
+    'Show on dashboard': 'ダッシュボードに表示',
+    'Show request-level savings estimates in usage logs.':
+      '使用ログにリクエスト単位の節約見積もりを表示します。',
+    'Show the savings summary and trend on the user dashboard.':
+      'ユーザーダッシュボードに節約のサマリーと推移を表示します。',
+    'Treat local model marketplace prices as official reference prices.':
+      'ローカルのモデル広場の価格を公式の参照価格として扱います。',
+    '{{count}} model price overrides': 'モデル価格の上書き {{count}} 件',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
       'モデル広場のローカル公式価格をデフォルトで使用します。official_prices は例外の上書きにのみ必要です。',
     'Create separate keys for your projects and keep credentials under your control.':
@@ -419,6 +585,41 @@ const newKeys = {
     'Clear usage and balance': 'Прозрачные расход и баланс',
     'Configure official pricing snapshots for user savings estimates.':
       'Настройте официальные ценовые снимки для оценки экономии пользователей.',
+    'Calculate estimated savings using official model prices.':
+      'Рассчитывать экономию по официальным ценам моделей.',
+    'Confirm marketplace pricing as official':
+      'Подтвердить цены каталога как официальные',
+    'Enable savings estimates': 'Включить оценку экономии',
+    'Estimate historical logs without a saved official price snapshot.':
+      'Оценивать исторические журналы без сохранённого снимка официальных цен.',
+    'Exclude prices that have not been confirmed as official.':
+      'Исключать цены, которые не были подтверждены как официальные.',
+    'Historical estimates': 'Исторические оценки',
+    'Limit the date range of each savings summary query.':
+      'Ограничить диапазон дат каждого запроса сводки экономии.',
+    'Limit the number of usage logs scanned per summary.':
+      'Ограничить число журналов использования, проверяемых для одной сводки.',
+    'Manage in JSON': 'Управлять в JSON',
+    'Maximum scanned log rows': 'Максимум проверяемых строк журнала',
+    'Maximum summary range (days)': 'Максимальный период сводки (дни)',
+    'Official price validity (days)': 'Срок действия официальной цены (дни)',
+    'Official pricing': 'Официальные цены',
+    'Price overrides': 'Переопределения цен',
+    'Prices older than this are excluded from savings estimates.':
+      'Более старые цены исключаются из расчёта экономии.',
+    'Recalculate legacy usage logs':
+      'Пересчитывать старые журналы использования',
+    'Require official price confirmation':
+      'Требовать подтверждения официальной цены',
+    'Show in usage logs': 'Показывать в журналах использования',
+    'Show on dashboard': 'Показывать на панели',
+    'Show request-level savings estimates in usage logs.':
+      'Показывать оценку экономии для каждого запроса в журналах использования.',
+    'Show the savings summary and trend on the user dashboard.':
+      'Показывать сводку и динамику экономии на панели пользователя.',
+    'Treat local model marketplace prices as official reference prices.':
+      'Считать локальные цены каталога моделей официальными справочными ценами.',
+    '{{count}} model price overrides': 'Переопределений цен моделей: {{count}}',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
       'По умолчанию используются локальные официальные цены из каталога моделей; official_prices нужен только для исключений.',
     'Create separate keys for your projects and keep credentials under your control.':
@@ -497,6 +698,39 @@ const newKeys = {
     'Clear usage and balance': 'Mức sử dụng và số dư minh bạch',
     'Configure official pricing snapshots for user savings estimates.':
       'Cấu hình bản chụp giá chính thức dùng cho ước tính tiết kiệm của người dùng.',
+    'Calculate estimated savings using official model prices.':
+      'Tính khoản tiết kiệm ước tính theo giá chính thức của mô hình.',
+    'Confirm marketplace pricing as official':
+      'Xác nhận giá trong kho mô hình là giá chính thức',
+    'Enable savings estimates': 'Bật ước tính tiết kiệm',
+    'Estimate historical logs without a saved official price snapshot.':
+      'Ước tính nhật ký cũ chưa lưu bản chụp giá chính thức.',
+    'Exclude prices that have not been confirmed as official.':
+      'Loại trừ giá chưa được xác nhận là chính thức.',
+    'Historical estimates': 'Ước tính dữ liệu cũ',
+    'Limit the date range of each savings summary query.':
+      'Giới hạn khoảng ngày cho mỗi truy vấn tổng hợp tiết kiệm.',
+    'Limit the number of usage logs scanned per summary.':
+      'Giới hạn số nhật ký sử dụng được quét cho mỗi bản tổng hợp.',
+    'Manage in JSON': 'Quản lý bằng JSON',
+    'Maximum scanned log rows': 'Số dòng nhật ký quét tối đa',
+    'Maximum summary range (days)': 'Khoảng tổng hợp tối đa (ngày)',
+    'Official price validity (days)': 'Thời hạn giá chính thức (ngày)',
+    'Official pricing': 'Giá chính thức',
+    'Price overrides': 'Giá ghi đè',
+    'Prices older than this are excluded from savings estimates.':
+      'Giá cũ hơn thời hạn này sẽ bị loại khỏi ước tính tiết kiệm.',
+    'Recalculate legacy usage logs': 'Tính lại nhật ký sử dụng cũ',
+    'Require official price confirmation': 'Yêu cầu xác nhận giá chính thức',
+    'Show in usage logs': 'Hiển thị trong nhật ký sử dụng',
+    'Show on dashboard': 'Hiển thị trên bảng điều khiển',
+    'Show request-level savings estimates in usage logs.':
+      'Hiển thị ước tính tiết kiệm theo từng yêu cầu trong nhật ký sử dụng.',
+    'Show the savings summary and trend on the user dashboard.':
+      'Hiển thị tổng hợp và xu hướng tiết kiệm trên bảng điều khiển người dùng.',
+    'Treat local model marketplace prices as official reference prices.':
+      'Xem giá cục bộ trong kho mô hình là giá tham chiếu chính thức.',
+    '{{count}} model price overrides': '{{count}} giá mô hình ghi đè',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
       'Mặc định dùng giá chính thức cục bộ từ kho mô hình; official_prices chỉ cần để ghi đè ngoại lệ.',
     'Create separate keys for your projects and keep credentials under your control.':
