@@ -18,12 +18,14 @@ For commercial licensing, please contact support@quantumnous.com
 */
 
 const SAVINGS_WINDOW_SECONDS = 24 * 60 * 60
+const SECONDS_PER_MINUTE = 60
 
 export function getRollingSavingsTimeRange(nowMs = Date.now()): {
   start_timestamp: number
   end_timestamp: number
 } {
-  const endTimestamp = Math.floor(nowMs / 1000)
+  const endTimestamp =
+    Math.floor(nowMs / (SECONDS_PER_MINUTE * 1000)) * SECONDS_PER_MINUTE
   return {
     start_timestamp: endTimestamp - SAVINGS_WINDOW_SECONDS,
     end_timestamp: endTimestamp,
