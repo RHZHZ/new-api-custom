@@ -9,6 +9,27 @@ function stableStringify(obj) {
 
 const newKeys = {
   en: {
+    'About official pricing estimates': 'About official pricing estimates',
+    'Estimated from official public pricing':
+      'Estimated from official public pricing',
+    'Historical savings backfill failed; results are incomplete.':
+      'Historical savings backfill failed; results are incomplete.',
+    'Historical usage has not been backfilled':
+      'Historical usage has not been backfilled',
+    'Last 24 hours': 'Last 24 hours',
+    'Lifetime savings counted so far': 'Lifetime savings counted so far',
+    'Official price confirmation is required while savings estimates are enabled.':
+      'Official price confirmation is required while savings estimates are enabled.',
+    'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.':
+      'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.',
+    'Reload savings data': 'Reload savings data',
+    'Required while savings estimates are enabled.':
+      'Required while savings estimates are enabled.',
+    'Savings data update failed': 'Savings data update failed',
+    'System historical data counting is paused':
+      'System historical data counting is paused',
+    'System historical data is being counted':
+      'System historical data is being counted',
     'Failed to retry historical backfill':
       'Failed to retry historical backfill',
     'Historical savings backfill retry started':
@@ -185,11 +206,28 @@ const newKeys = {
     'reliability controls': 'reliability controls',
     'supported billing models': 'supported billing models',
     '{{coverage}} coverage': '{{coverage}} coverage',
-    '{{count}} historical requests recalculated at current official prices':
-      '{{count}} historical requests recalculated at current official prices',
+    'Historical requests recalculated at current official prices: {{count}}':
+      'Historical requests recalculated at current official prices: {{count}}',
     Workspace: 'Workspace',
   },
   zh: {
+    'About official pricing estimates': '关于官方定价估算',
+    'Estimated from official public pricing': '基于官方公开定价估算',
+    'Historical savings backfill failed; results are incomplete.':
+      '历史节省回算失败，结果尚不完整。',
+    'Historical usage has not been backfilled': '历史消费尚未回算',
+    'Last 24 hours': '近 24 小时',
+    'Lifetime savings counted so far': '当前已统计累计节省',
+    'Official price confirmation is required while savings estimates are enabled.':
+      '启用节省估算时必须要求官方价格确认。',
+    'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.':
+      '官方价格来自模型广场中已确认的价格快照；估算结果仅用于成本对比。',
+    'Reload savings data': '重新加载节省数据',
+    'Required while savings estimates are enabled.':
+      '启用节省估算时必须开启此项。',
+    'Savings data update failed': '节省数据更新失败',
+    'System historical data counting is paused': '系统历史数据统计已暂停',
+    'System historical data is being counted': '系统历史数据统计中',
     'Failed to retry historical backfill': '重试历史回算失败',
     'Historical savings backfill retry started': '历史节省回算已从断点重试',
     'Retry from saved progress': '从已保存进度重试',
@@ -218,7 +256,7 @@ const newKeys = {
     'Enable and save lifetime savings before starting a backfill.':
       '请先启用并保存历史累计节省，再启动回算。',
     'Enable lifetime savings': '启用历史累计节省',
-    'Estimated: {{count}}': '成功估算：{{count}}',
+    'Estimated: {{count}}': '已估算：{{count}}',
     'Failed to start historical backfill': '启动历史回算失败',
     'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
       '冻结当前官方价格和汇率，然后根据已有使用日志计算历史累计节省。',
@@ -350,11 +388,28 @@ const newKeys = {
     'reliability controls': '稳定性保障能力',
     'supported billing models': '支持的计费模型',
     '{{coverage}} coverage': '覆盖率 {{coverage}}',
-    '{{count}} historical requests recalculated at current official prices':
-      '含 {{count}} 条按当前官方价回算的历史请求',
+    'Historical requests recalculated at current official prices: {{count}}':
+      '按当前官方价回算的历史请求：{{count}}',
     Workspace: '工作区',
   },
   'zh-TW': {
+    'About official pricing estimates': '關於官方定價估算',
+    'Estimated from official public pricing': '基於官方公開定價估算',
+    'Historical savings backfill failed; results are incomplete.':
+      '歷史節省回算失敗，結果尚不完整。',
+    'Historical usage has not been backfilled': '歷史消費尚未回算',
+    'Last 24 hours': '近 24 小時',
+    'Lifetime savings counted so far': '目前已統計累計節省',
+    'Official price confirmation is required while savings estimates are enabled.':
+      '啟用節省估算時必須要求官方價格確認。',
+    'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.':
+      '官方價格來自模型廣場中已確認的價格快照；估算結果僅用於成本比較。',
+    'Reload savings data': '重新載入節省資料',
+    'Required while savings estimates are enabled.':
+      '啟用節省估算時必須開啟此項。',
+    'Savings data update failed': '節省資料更新失敗',
+    'System historical data counting is paused': '系統歷史資料統計已暫停',
+    'System historical data is being counted': '系統歷史資料統計中',
     'Failed to retry historical backfill': '重試歷史回算失敗',
     'Historical savings backfill retry started': '歷史節省回算已從進度點重試',
     'Retry from saved progress': '從已儲存進度重試',
@@ -383,7 +438,7 @@ const newKeys = {
     'Enable and save lifetime savings before starting a backfill.':
       '請先啟用並儲存歷史累計節省，再啟動回算。',
     'Enable lifetime savings': '啟用歷史累計節省',
-    'Estimated: {{count}}': '成功估算：{{count}}',
+    'Estimated: {{count}}': '已估算：{{count}}',
     'Failed to start historical backfill': '啟動歷史回算失敗',
     'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
       '凍結目前官方價格和匯率，然後根據既有使用日誌計算歷史累計節省。',
@@ -471,12 +526,12 @@ const newKeys = {
     'Show request-level savings estimates in usage logs.':
       '在使用日誌中顯示每次請求的節省估算。',
     'Show the savings summary and trend on the user dashboard.':
-      '在使用者儀表板中顯示節省彙總和趨勢。',
+      '在用戶儀表板中顯示節省彙總和趨勢。',
     'Treat local model marketplace prices as official reference prices.':
-      '將本機模型廣場價格視為官方參考價格。',
+      '將本地模型廣場價格視為官方參考價格。',
     '{{count}} model price overrides': '{{count}} 個模型價格覆寫',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
-      '預設使用模型廣場中的本機官方定價；official_prices 僅用於覆寫例外模型。',
+      '預設使用模型廣場中的本地官方定價；official_prices 僅用於覆寫例外模型。',
     'Create separate keys for your projects and keep credentials under your control.':
       '為不同專案建立獨立金鑰，憑證始終由你掌控。',
     'Estimated from official pricing': '基於官方定價估算',
@@ -515,11 +570,33 @@ const newKeys = {
     'reliability controls': '穩定性保障能力',
     'supported billing models': '支援的計費模型',
     '{{coverage}} coverage': '覆蓋率 {{coverage}}',
-    '{{count}} historical requests recalculated at current official prices':
-      '已按目前官方定價回算 {{count}} 筆歷史請求',
+    'Historical requests recalculated at current official prices: {{count}}':
+      '按目前官方定價回算的歷史請求：{{count}}',
     Workspace: '工作區',
   },
   fr: {
+    'About official pricing estimates':
+      'À propos des estimations basées sur les tarifs officiels',
+    'Estimated from official public pricing':
+      'Estimé à partir des tarifs publics officiels',
+    'Historical savings backfill failed; results are incomplete.':
+      'Le recalcul des économies historiques a échoué ; les résultats sont incomplets.',
+    'Historical usage has not been backfilled':
+      "L'utilisation historique n'a pas encore été recalculée",
+    'Last 24 hours': 'Dernières 24 heures',
+    'Lifetime savings counted so far': 'Économies cumulées comptabilisées',
+    'Official price confirmation is required while savings estimates are enabled.':
+      'La confirmation des tarifs officiels est obligatoire lorsque les estimations d’économies sont activées.',
+    'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.':
+      'Les tarifs officiels sont des instantanés confirmés de la place de marché des modèles ; ces estimations servent uniquement à comparer les coûts.',
+    'Reload savings data': 'Recharger les économies',
+    'Required while savings estimates are enabled.':
+      'Requis lorsque les estimations d’économies sont activées.',
+    'Savings data update failed': 'Échec de la mise à jour des économies',
+    'System historical data counting is paused':
+      'Le traitement des données historiques du système est en pause',
+    'System historical data is being counted':
+      'Traitement des données historiques du système en cours',
     'Failed to retry historical backfill':
       'Impossible de relancer le recalcul historique',
     'Historical savings backfill retry started':
@@ -707,11 +784,30 @@ const newKeys = {
     'reliability controls': 'mécanismes de fiabilité',
     'supported billing models': 'modèles de facturation pris en charge',
     '{{coverage}} coverage': 'Couverture {{coverage}}',
-    '{{count}} historical requests recalculated at current official prices':
-      '{{count}} requêtes historiques recalculées aux tarifs officiels actuels',
+    'Historical requests recalculated at current official prices: {{count}}':
+      'Nombre de requêtes historiques recalculées aux tarifs officiels actuels : {{count}}',
     Workspace: 'Espace de travail',
   },
   ja: {
+    'About official pricing estimates': '公式料金による推定について',
+    'Estimated from official public pricing': '公式公開料金に基づく推定',
+    'Historical savings backfill failed; results are incomplete.':
+      '過去分の節約額の再計算に失敗したため、結果は未完了です。',
+    'Historical usage has not been backfilled': '過去の利用分は未再計算です',
+    'Last 24 hours': '過去 24 時間',
+    'Lifetime savings counted so far': '現在までに集計した累計節約額',
+    'Official price confirmation is required while savings estimates are enabled.':
+      '節約額の推定を有効にしている間は、公式料金の確認が必要です。',
+    'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.':
+      '公式料金はモデルマーケットで確認済みの料金スナップショットです。推定結果はコスト比較専用です。',
+    'Reload savings data': '節約データを再読み込み',
+    'Required while savings estimates are enabled.':
+      '節約額の推定が有効な間は必須です。',
+    'Savings data update failed': '節約データを更新できませんでした',
+    'System historical data counting is paused':
+      'システムの過去データ集計は一時停止中です',
+    'System historical data is being counted':
+      'システムの過去データを集計中です',
     'Failed to retry historical backfill': '履歴再計算を再試行できませんでした',
     'Historical savings backfill retry started':
       '保存済みの進捗から履歴節約額の再計算を再試行しました',
@@ -881,11 +977,32 @@ const newKeys = {
     'reliability controls': '安定性制御',
     'supported billing models': '対応する課金モデル',
     '{{coverage}} coverage': 'カバー率 {{coverage}}',
-    '{{count}} historical requests recalculated at current official prices':
-      '過去の {{count}} 件のリクエストを現在の公式価格で再計算',
+    'Historical requests recalculated at current official prices: {{count}}':
+      '現在の公式価格で再計算した過去のリクエスト数：{{count}}',
     Workspace: 'ワークスペース',
   },
   ru: {
+    'About official pricing estimates': 'Об оценке по официальным тарифам',
+    'Estimated from official public pricing':
+      'Оценка по официальным публичным тарифам',
+    'Historical savings backfill failed; results are incomplete.':
+      'Пересчет исторической экономии завершился ошибкой; результаты неполные.',
+    'Historical usage has not been backfilled':
+      'Историческое использование еще не пересчитано',
+    'Last 24 hours': 'Последние 24 часа',
+    'Lifetime savings counted so far': 'Учтенная накопленная экономия',
+    'Official price confirmation is required while savings estimates are enabled.':
+      'При включенной оценке экономии требуется подтверждение официальных тарифов.',
+    'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.':
+      'Официальные тарифы взяты из подтвержденных снимков цен каталога моделей; оценки предназначены только для сравнения затрат.',
+    'Reload savings data': 'Обновить данные об экономии',
+    'Required while savings estimates are enabled.':
+      'Обязательно при включенной оценке экономии.',
+    'Savings data update failed': 'Не удалось обновить данные об экономии',
+    'System historical data counting is paused':
+      'Системный учет исторических данных приостановлен',
+    'System historical data is being counted':
+      'Система обрабатывает исторические данные',
     'Failed to retry historical backfill':
       'Не удалось повторить исторический пересчет',
     'Historical savings backfill retry started':
@@ -913,12 +1030,12 @@ const newKeys = {
     'Add the frozen cumulative savings amount to the wallet summary.':
       'Добавить зафиксированную накопленную экономию в сводку кошелька.',
     'Aggregate new usage into a frozen lifetime savings total.':
-      'Добавлять новое использование в зафиксированную накопленную экономию.',
+      'Учитывать новое использование в зафиксированной общей сумме экономии за всё время.',
     'Backfill running': 'Пересчет выполняется',
     'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
       'Учтено на данный момент · покрытие {{coverage}} · пересчет {{progress}}',
     'Enable and save lifetime savings before starting a backfill.':
-      'Включите и сохраните накопленную экономию перед запуском пересчета.',
+      'Включите и сохраните настройку накопленной экономии перед запуском пересчёта.',
     'Enable lifetime savings': 'Включить накопленную экономию',
     'Estimated: {{count}}': 'Оценено: {{count}}',
     'Failed to start historical backfill':
@@ -965,8 +1082,8 @@ const newKeys = {
     'Official price estimate': 'Оценка по официальной цене',
     'Cost comparison': 'Сравнение затрат',
     Coverage: 'Покрытие',
-    'Covered request actual cost': 'Фактическая стоимость учтённых запросов',
-    'Covered requests': 'Учтённые запросы',
+    'Covered request actual cost': 'Фактическая стоимость охваченных запросов',
+    'Covered requests': 'Охваченные запросы',
     'Current account cost comparison': 'Сравнение затрат текущего аккаунта',
     'Current account only': 'Только текущий аккаунт',
     'Converted at 1 USD = {{rate}} CNY':
@@ -990,7 +1107,7 @@ const newKeys = {
     'Configure official pricing snapshots for user savings estimates.':
       'Настройте официальные ценовые снимки для оценки экономии пользователей.',
     'Calculate estimated savings using official model prices.':
-      'Рассчитывать экономию по официальным ценам моделей.',
+      'Рассчитывать оценочную экономию по официальным ценам моделей.',
     'Confirm marketplace pricing as official':
       'Подтвердить цены каталога как официальные',
     'Enable savings estimates': 'Включить оценку экономии',
@@ -1012,7 +1129,7 @@ const newKeys = {
     'Prices older than this are excluded from savings estimates.':
       'Более старые цены исключаются из расчёта экономии.',
     'Recalculate legacy usage logs':
-      'Пересчитывать старые журналы использования',
+      'Пересчитать устаревшие журналы использования',
     'Require official price confirmation':
       'Требовать подтверждения официальной цены',
     'Show in usage logs': 'Показывать в журналах использования',
@@ -1025,7 +1142,7 @@ const newKeys = {
       'Считать локальные цены каталога моделей официальными справочными ценами.',
     '{{count}} model price overrides': 'Переопределений цен моделей: {{count}}',
     'Uses local official pricing from the model marketplace by default; official_prices is only needed for overrides.':
-      'По умолчанию используются локальные официальные цены из каталога моделей; official_prices нужен только для исключений.',
+      'По умолчанию используются локальные официальные цены из каталога моделей; official_prices нужен только для переопределений.',
     'Create separate keys for your projects and keep credentials under your control.':
       'Создавайте отдельные ключи для проектов и сохраняйте контроль над учетными данными.',
     'Estimated from official pricing': 'Оценено по официальным тарифам',
@@ -1069,11 +1186,32 @@ const newKeys = {
     'reliability controls': 'механизмов надежности',
     'supported billing models': 'поддерживаемых моделей оплаты',
     '{{coverage}} coverage': 'Покрытие {{coverage}}',
-    '{{count}} historical requests recalculated at current official prices':
-      '{{count}} исторических запросов пересчитано по текущим официальным ценам',
+    'Historical requests recalculated at current official prices: {{count}}':
+      'Количество исторических запросов, пересчитанных по текущим официальным ценам: {{count}}',
     Workspace: 'Рабочая область',
   },
   vi: {
+    'About official pricing estimates': 'Về ước tính theo giá chính thức',
+    'Estimated from official public pricing':
+      'Ước tính theo giá công khai chính thức',
+    'Historical savings backfill failed; results are incomplete.':
+      'Tính lại khoản tiết kiệm trước đây thất bại; kết quả chưa đầy đủ.',
+    'Historical usage has not been backfilled':
+      'Dữ liệu sử dụng trước đây chưa được tính lại',
+    'Last 24 hours': '24 giờ qua',
+    'Lifetime savings counted so far': 'Tiết kiệm tích lũy đã thống kê',
+    'Official price confirmation is required while savings estimates are enabled.':
+      'Phải xác nhận giá chính thức khi bật ước tính tiết kiệm.',
+    'Official prices are confirmed snapshots from the model marketplace; estimates are for cost comparison only.':
+      'Giá chính thức là bản chụp giá đã xác nhận từ chợ mô hình; kết quả ước tính chỉ dùng để so sánh chi phí.',
+    'Reload savings data': 'Tải lại dữ liệu tiết kiệm',
+    'Required while savings estimates are enabled.':
+      'Bắt buộc khi bật ước tính tiết kiệm.',
+    'Savings data update failed': 'Không thể cập nhật dữ liệu tiết kiệm',
+    'System historical data counting is paused':
+      'Hệ thống đã tạm dừng thống kê dữ liệu trước đây',
+    'System historical data is being counted':
+      'Hệ thống đang thống kê dữ liệu trước đây',
     'Failed to retry historical backfill':
       'Không thể thử lại tính toán dữ liệu lịch sử',
     'Historical savings backfill retry started':
@@ -1219,8 +1357,9 @@ const newKeys = {
     'One endpoint, one key, and a clear view of every request.':
       'Một endpoint, một khóa và toàn bộ yêu cầu đều rõ ràng.',
     'Official Price Estimate': 'Ước tính theo giá chính thức',
-    'Official Price Updated': 'Cập nhật giá chính thức',
-    'Official price updated {{time}}': 'Giá chính thức cập nhật {{time}}',
+    'Official Price Updated': 'Giá chính thức đã được cập nhật',
+    'Official price updated {{time}}':
+      'Giá chính thức được cập nhật lúc {{time}}',
     'Official pricing estimate': 'Ước tính giá chính thức',
     'No eligible savings records yet': 'Chưa có bản ghi tiết kiệm đủ điều kiện',
     'RAPI saved you about {{amount}}':
@@ -1251,8 +1390,8 @@ const newKeys = {
     'reliability controls': 'cơ chế đảm bảo ổn định',
     'supported billing models': 'mô hình tính phí được hỗ trợ',
     '{{coverage}} coverage': 'Mức bao phủ {{coverage}}',
-    '{{count}} historical requests recalculated at current official prices':
-      'Đã tính lại {{count}} yêu cầu cũ theo giá chính thức hiện tại',
+    'Historical requests recalculated at current official prices: {{count}}':
+      'Số yêu cầu cũ đã tính lại theo giá chính thức hiện tại: {{count}}',
     Workspace: 'Không gian làm việc',
   },
 }
