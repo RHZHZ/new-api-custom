@@ -5,6 +5,8 @@
 upload
 *.exe
 *.db
+*.db.backup-*
+*.db.corrupt-*
 build
 *.db-journal
 logs
