@@ -9,6 +9,76 @@ function stableStringify(obj) {
 
 const newKeys = {
   en: {
+    'Failed to retry historical backfill':
+      'Failed to retry historical backfill',
+    'Historical savings backfill retry started':
+      'Historical savings backfill retry started',
+    'Retry from saved progress': 'Retry from saved progress',
+    'Ambiguous ClickHouse rows skipped: {{count}}':
+      'Ambiguous ClickHouse rows skipped: {{count}}',
+    'Tasks currently pending, running, or paused.':
+      'Tasks currently pending, running, or paused.',
+    pause_requested: 'pausing',
+    paused: 'paused',
+    'Savings lifetime backfill': 'Savings lifetime backfill',
+    'Failed to pause historical backfill':
+      'Failed to pause historical backfill',
+    'Failed to resume historical backfill':
+      'Failed to resume historical backfill',
+    'Historical savings backfill pause requested':
+      'Historical savings backfill pause requested',
+    'Historical savings backfill resumed':
+      'Historical savings backfill resumed',
+    'Pause backfill': 'Pause backfill',
+    Paused: 'Paused',
+    Pausing: 'Pausing',
+    'Resume backfill': 'Resume backfill',
+    'Add the frozen cumulative savings amount to the wallet summary.':
+      'Add the frozen cumulative savings amount to the wallet summary.',
+    'Aggregate new usage into a frozen lifetime savings total.':
+      'Aggregate new usage into a frozen lifetime savings total.',
+    'Backfill running': 'Backfill running',
+    'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
+      'Counted so far · {{coverage}} coverage · {{progress}} backfilled',
+    'Enable and save lifetime savings before starting a backfill.':
+      'Enable and save lifetime savings before starting a backfill.',
+    'Enable lifetime savings': 'Enable lifetime savings',
+    'Estimated: {{count}}': 'Estimated: {{count}}',
+    'Failed to start historical backfill':
+      'Failed to start historical backfill',
+    'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
+      'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.',
+    'Historical backfill': 'Historical backfill',
+    'Historical backfill batch size': 'Historical backfill batch size',
+    'Historical savings backfill failed': 'Historical savings backfill failed',
+    'Historical savings backfill is already active':
+      'Historical savings backfill is already active',
+    'Historical savings backfill started':
+      'Historical savings backfill started',
+    'In the last 24 hours, RAPI saved you about {{amount}}':
+      'In the last 24 hours, RAPI saved you about {{amount}}',
+    'Keep a stable cumulative savings total without scanning usage logs when users open a page.':
+      'Keep a stable cumulative savings total without scanning usage logs when users open a page.',
+    'Last 24h savings estimate': 'Last 24h savings estimate',
+    'Lifetime savings': 'Lifetime savings',
+    'Lifetime savings counted so far: {{amount}}':
+      'Lifetime savings counted so far: {{amount}}',
+    'No lifetime savings records yet': 'No lifetime savings records yet',
+    'Prices frozen at {{time}}': 'Prices frozen at {{time}}',
+    'Process between 500 and 5000 usage logs per batch.':
+      'Process between 500 and 5000 usage logs per batch.',
+    'RAPI has saved you about {{amount}} in total':
+      'RAPI has saved you about {{amount}} in total',
+    'Show cumulative savings, coverage, and backfill progress on the user dashboard.':
+      'Show cumulative savings, coverage, and backfill progress on the user dashboard.',
+    'Show lifetime savings in wallet': 'Show lifetime savings in wallet',
+    'Show lifetime savings on dashboard': 'Show lifetime savings on dashboard',
+    'Since {{date}} · {{coverage}} coverage':
+      'Since {{date}} · {{coverage}} coverage',
+    'Skipped: {{count}}': 'Skipped: {{count}}',
+    'Start historical backfill': 'Start historical backfill',
+    '{{processed}} of {{total}} usage logs processed':
+      '{{processed}} of {{total}} usage logs processed',
     'About historical savings estimates': 'About historical savings estimates',
     'Estimated savings': 'Estimated savings',
     'Official price estimate': 'Official price estimate',
@@ -120,6 +190,67 @@ const newKeys = {
     Workspace: 'Workspace',
   },
   zh: {
+    'Failed to retry historical backfill': '重试历史回算失败',
+    'Historical savings backfill retry started': '历史节省回算已从断点重试',
+    'Retry from saved progress': '从已保存进度重试',
+    'Ambiguous ClickHouse rows skipped: {{count}}':
+      '已跳过无法区分的 ClickHouse 行：{{count}}',
+    'Tasks currently pending, running, or paused.':
+      '当前处于等待、运行或暂停状态的任务。',
+    pause_requested: '暂停中',
+    paused: '已暂停',
+    'Savings lifetime backfill': '历史累计节省回算',
+    'Failed to pause historical backfill': '暂停历史回算失败',
+    'Failed to resume historical backfill': '恢复历史回算失败',
+    'Historical savings backfill pause requested': '已请求暂停历史节省回算',
+    'Historical savings backfill resumed': '历史节省回算已恢复',
+    'Pause backfill': '暂停回算',
+    Paused: '已暂停',
+    Pausing: '暂停中',
+    'Resume backfill': '恢复回算',
+    'Add the frozen cumulative savings amount to the wallet summary.':
+      '在钱包汇总中显示冻结后的累计节省金额。',
+    'Aggregate new usage into a frozen lifetime savings total.':
+      '将新用量聚合为口径冻结的历史累计节省。',
+    'Backfill running': '回算进行中',
+    'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
+      '当前已统计 · 覆盖率 {{coverage}} · 历史回算 {{progress}}',
+    'Enable and save lifetime savings before starting a backfill.':
+      '请先启用并保存历史累计节省，再启动回算。',
+    'Enable lifetime savings': '启用历史累计节省',
+    'Estimated: {{count}}': '成功估算：{{count}}',
+    'Failed to start historical backfill': '启动历史回算失败',
+    'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
+      '冻结当前官方价格和汇率，然后根据已有使用日志计算历史累计节省。',
+    'Historical backfill': '历史回算',
+    'Historical backfill batch size': '历史回算批次大小',
+    'Historical savings backfill failed': '历史节省回算失败',
+    'Historical savings backfill is already active': '历史节省回算已在运行',
+    'Historical savings backfill started': '历史节省回算已启动',
+    'In the last 24 hours, RAPI saved you about {{amount}}':
+      '近 24 小时 RAPI 已帮你节省约 {{amount}}',
+    'Keep a stable cumulative savings total without scanning usage logs when users open a page.':
+      '保存稳定的累计节省总额，用户打开页面时无需扫描使用日志。',
+    'Last 24h savings estimate': '近 24 小时节省估算',
+    'Lifetime savings': '历史累计节省',
+    'Lifetime savings counted so far: {{amount}}':
+      '当前已统计累计节省：{{amount}}',
+    'No lifetime savings records yet': '暂无历史累计节省记录',
+    'Prices frozen at {{time}}': '价格冻结于 {{time}}',
+    'Process between 500 and 5000 usage logs per batch.':
+      '每批处理 500 至 5000 条使用日志。',
+    'RAPI has saved you about {{amount}} in total':
+      'RAPI 已累计帮你节省约 {{amount}}',
+    'Show cumulative savings, coverage, and backfill progress on the user dashboard.':
+      '在用户仪表盘显示累计节省、覆盖率和回算进度。',
+    'Show lifetime savings in wallet': '在钱包显示历史累计节省',
+    'Show lifetime savings on dashboard': '在仪表盘显示历史累计节省',
+    'Since {{date}} · {{coverage}} coverage':
+      '统计始于 {{date}} · 覆盖率 {{coverage}}',
+    'Skipped: {{count}}': '已跳过：{{count}}',
+    'Start historical backfill': '启动历史回算',
+    '{{processed}} of {{total}} usage logs processed':
+      '已处理 {{processed}} / {{total}} 条使用日志',
     'About historical savings estimates': '关于历史节省估算',
     'Estimated savings': '预计节省',
     'Official price estimate': '官方价格估算',
@@ -224,6 +355,67 @@ const newKeys = {
     Workspace: '工作区',
   },
   'zh-TW': {
+    'Failed to retry historical backfill': '重試歷史回算失敗',
+    'Historical savings backfill retry started': '歷史節省回算已從進度點重試',
+    'Retry from saved progress': '從已儲存進度重試',
+    'Ambiguous ClickHouse rows skipped: {{count}}':
+      '已略過無法區分的 ClickHouse 資料列：{{count}}',
+    'Tasks currently pending, running, or paused.':
+      '目前處於等待、執行或暫停狀態的任務。',
+    pause_requested: '暫停中',
+    paused: '已暫停',
+    'Savings lifetime backfill': '歷史累計節省回算',
+    'Failed to pause historical backfill': '暫停歷史回算失敗',
+    'Failed to resume historical backfill': '恢復歷史回算失敗',
+    'Historical savings backfill pause requested': '已請求暫停歷史節省回算',
+    'Historical savings backfill resumed': '歷史節省回算已恢復',
+    'Pause backfill': '暫停回算',
+    Paused: '已暫停',
+    Pausing: '暫停中',
+    'Resume backfill': '恢復回算',
+    'Add the frozen cumulative savings amount to the wallet summary.':
+      '在錢包摘要中顯示凍結後的累計節省金額。',
+    'Aggregate new usage into a frozen lifetime savings total.':
+      '將新用量彙總為口徑凍結的歷史累計節省。',
+    'Backfill running': '回算進行中',
+    'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
+      '目前已統計 · 覆蓋率 {{coverage}} · 歷史回算 {{progress}}',
+    'Enable and save lifetime savings before starting a backfill.':
+      '請先啟用並儲存歷史累計節省，再啟動回算。',
+    'Enable lifetime savings': '啟用歷史累計節省',
+    'Estimated: {{count}}': '成功估算：{{count}}',
+    'Failed to start historical backfill': '啟動歷史回算失敗',
+    'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
+      '凍結目前官方價格和匯率，然後根據既有使用日誌計算歷史累計節省。',
+    'Historical backfill': '歷史回算',
+    'Historical backfill batch size': '歷史回算批次大小',
+    'Historical savings backfill failed': '歷史節省回算失敗',
+    'Historical savings backfill is already active': '歷史節省回算已在執行',
+    'Historical savings backfill started': '歷史節省回算已啟動',
+    'In the last 24 hours, RAPI saved you about {{amount}}':
+      '近 24 小時 RAPI 已幫你節省約 {{amount}}',
+    'Keep a stable cumulative savings total without scanning usage logs when users open a page.':
+      '保存穩定的累計節省總額，使用者開啟頁面時無需掃描使用日誌。',
+    'Last 24h savings estimate': '近 24 小時節省估算',
+    'Lifetime savings': '歷史累計節省',
+    'Lifetime savings counted so far: {{amount}}':
+      '目前已統計累計節省：{{amount}}',
+    'No lifetime savings records yet': '暫無歷史累計節省記錄',
+    'Prices frozen at {{time}}': '價格凍結於 {{time}}',
+    'Process between 500 and 5000 usage logs per batch.':
+      '每批處理 500 至 5000 筆使用日誌。',
+    'RAPI has saved you about {{amount}} in total':
+      'RAPI 已累計幫你節省約 {{amount}}',
+    'Show cumulative savings, coverage, and backfill progress on the user dashboard.':
+      '在使用者儀表板顯示累計節省、覆蓋率和回算進度。',
+    'Show lifetime savings in wallet': '在錢包顯示歷史累計節省',
+    'Show lifetime savings on dashboard': '在儀表板顯示歷史累計節省',
+    'Since {{date}} · {{coverage}} coverage':
+      '統計始於 {{date}} · 覆蓋率 {{coverage}}',
+    'Skipped: {{count}}': '已略過：{{count}}',
+    'Start historical backfill': '啟動歷史回算',
+    '{{processed}} of {{total}} usage logs processed':
+      '已處理 {{processed}} / {{total}} 筆使用日誌',
     'About historical savings estimates': '關於歷史節省估算',
     'Estimated savings': '預估節省',
     'Official price estimate': '官方價格估算',
@@ -328,6 +520,80 @@ const newKeys = {
     Workspace: '工作區',
   },
   fr: {
+    'Failed to retry historical backfill':
+      'Impossible de relancer le recalcul historique',
+    'Historical savings backfill retry started':
+      'Reprise du recalcul historique depuis la progression enregistrée',
+    'Retry from saved progress': 'Reprendre depuis la progression enregistrée',
+    'Ambiguous ClickHouse rows skipped: {{count}}':
+      'Lignes ClickHouse ambiguës ignorées : {{count}}',
+    'Tasks currently pending, running, or paused.':
+      'Tâches actuellement en attente, en cours ou suspendues.',
+    pause_requested: 'suspension',
+    paused: 'suspendu',
+    'Savings lifetime backfill': 'Recalcul des économies cumulées',
+    'Failed to pause historical backfill':
+      'Impossible de suspendre le recalcul historique',
+    'Failed to resume historical backfill':
+      'Impossible de reprendre le recalcul historique',
+    'Historical savings backfill pause requested':
+      'Suspension du recalcul historique demandée',
+    'Historical savings backfill resumed':
+      'Recalcul des économies historiques repris',
+    'Pause backfill': 'Suspendre le recalcul',
+    Paused: 'Suspendu',
+    Pausing: 'Suspension',
+    'Resume backfill': 'Reprendre le recalcul',
+    'Add the frozen cumulative savings amount to the wallet summary.':
+      'Ajouter le montant cumulé figé au résumé du portefeuille.',
+    'Aggregate new usage into a frozen lifetime savings total.':
+      "Agréger les nouveaux usages dans un total d'économies cumulé et figé.",
+    'Backfill running': 'Recalcul en cours',
+    'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
+      'Comptabilisé à ce jour · couverture {{coverage}} · recalcul {{progress}}',
+    'Enable and save lifetime savings before starting a backfill.':
+      'Activez et enregistrez les économies cumulées avant de lancer le recalcul.',
+    'Enable lifetime savings': 'Activer les économies cumulées',
+    'Estimated: {{count}}': 'Estimées : {{count}}',
+    'Failed to start historical backfill':
+      'Échec du lancement du recalcul historique',
+    'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
+      'Figer les tarifs officiels et le taux de change actuels, puis calculer les économies cumulées à partir des journaux existants.',
+    'Historical backfill': 'Recalcul historique',
+    'Historical backfill batch size': 'Taille des lots du recalcul historique',
+    'Historical savings backfill failed':
+      'Le recalcul des économies historiques a échoué',
+    'Historical savings backfill is already active':
+      'Le recalcul des économies historiques est déjà actif',
+    'Historical savings backfill started':
+      'Recalcul des économies historiques démarré',
+    'In the last 24 hours, RAPI saved you about {{amount}}':
+      'Au cours des dernières 24 h, RAPI vous a fait économiser environ {{amount}}',
+    'Keep a stable cumulative savings total without scanning usage logs when users open a page.':
+      "Conserver un total cumulé stable sans analyser les journaux à l'ouverture d'une page.",
+    'Last 24h savings estimate': 'Estimation des économies sur 24 h',
+    'Lifetime savings': 'Économies cumulées',
+    'Lifetime savings counted so far: {{amount}}':
+      'Économies cumulées comptabilisées : {{amount}}',
+    'No lifetime savings records yet':
+      "Aucune économie cumulée enregistrée pour l'instant",
+    'Prices frozen at {{time}}': 'Tarifs figés le {{time}}',
+    'Process between 500 and 5000 usage logs per batch.':
+      "Traiter entre 500 et 5 000 journaux d'usage par lot.",
+    'RAPI has saved you about {{amount}} in total':
+      'RAPI vous a fait économiser environ {{amount}} au total',
+    'Show cumulative savings, coverage, and backfill progress on the user dashboard.':
+      'Afficher les économies cumulées, la couverture et la progression du recalcul sur le tableau de bord.',
+    'Show lifetime savings in wallet':
+      'Afficher les économies cumulées dans le portefeuille',
+    'Show lifetime savings on dashboard':
+      'Afficher les économies cumulées sur le tableau de bord',
+    'Since {{date}} · {{coverage}} coverage':
+      'Depuis le {{date}} · couverture {{coverage}}',
+    'Skipped: {{count}}': 'Ignorées : {{count}}',
+    'Start historical backfill': 'Démarrer le recalcul historique',
+    '{{processed}} of {{total}} usage logs processed':
+      '{{processed}} journaux traités sur {{total}}',
     'About historical savings estimates':
       "À propos de l'estimation des économies historiques",
     'Estimated savings': 'Économies estimées',
@@ -446,6 +712,71 @@ const newKeys = {
     Workspace: 'Espace de travail',
   },
   ja: {
+    'Failed to retry historical backfill': '履歴再計算を再試行できませんでした',
+    'Historical savings backfill retry started':
+      '保存済みの進捗から履歴節約額の再計算を再試行しました',
+    'Retry from saved progress': '保存済みの進捗から再試行',
+    'Ambiguous ClickHouse rows skipped: {{count}}':
+      '区別できないClickHouse行をスキップ：{{count}}',
+    'Tasks currently pending, running, or paused.':
+      '待機中、実行中、または一時停止中のタスクです。',
+    pause_requested: '一時停止処理中',
+    paused: '一時停止中',
+    'Savings lifetime backfill': '累計節約額の履歴再計算',
+    'Failed to pause historical backfill':
+      '履歴再計算を一時停止できませんでした',
+    'Failed to resume historical backfill': '履歴再計算を再開できませんでした',
+    'Historical savings backfill pause requested':
+      '履歴節約額の再計算に一時停止を要求しました',
+    'Historical savings backfill resumed': '履歴節約額の再計算を再開しました',
+    'Pause backfill': '再計算を一時停止',
+    Paused: '一時停止中',
+    Pausing: '一時停止処理中',
+    'Resume backfill': '再計算を再開',
+    'Add the frozen cumulative savings amount to the wallet summary.':
+      '固定された累計節約額をウォレット概要に表示します。',
+    'Aggregate new usage into a frozen lifetime savings total.':
+      '新しい利用分を固定された累計節約額に集計します。',
+    'Backfill running': '再計算中',
+    'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
+      '現在までの集計 · カバー率 {{coverage}} · 再計算 {{progress}}',
+    'Enable and save lifetime savings before starting a backfill.':
+      '履歴再計算を開始する前に、累計節約額を有効にして保存してください。',
+    'Enable lifetime savings': '累計節約額を有効化',
+    'Estimated: {{count}}': '推定済み：{{count}}',
+    'Failed to start historical backfill': '履歴再計算を開始できませんでした',
+    'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
+      '現在の公式価格と為替レートを固定し、既存の利用ログから累計節約額を計算します。',
+    'Historical backfill': '履歴再計算',
+    'Historical backfill batch size': '履歴再計算のバッチサイズ',
+    'Historical savings backfill failed': '履歴節約額の再計算に失敗しました',
+    'Historical savings backfill is already active':
+      '履歴節約額の再計算はすでに実行中です',
+    'Historical savings backfill started': '履歴節約額の再計算を開始しました',
+    'In the last 24 hours, RAPI saved you about {{amount}}':
+      '過去24時間でRAPIにより約{{amount}}節約できました',
+    'Keep a stable cumulative savings total without scanning usage logs when users open a page.':
+      'ページ表示時に利用ログを走査せず、安定した累計節約額を保持します。',
+    'Last 24h savings estimate': '過去24時間の節約見積もり',
+    'Lifetime savings': '累計節約額',
+    'Lifetime savings counted so far: {{amount}}':
+      '現在までの累計節約額：{{amount}}',
+    'No lifetime savings records yet': '累計節約額の記録はまだありません',
+    'Prices frozen at {{time}}': '価格固定日時：{{time}}',
+    'Process between 500 and 5000 usage logs per batch.':
+      '1バッチあたり500～5000件の利用ログを処理します。',
+    'RAPI has saved you about {{amount}} in total':
+      'RAPIにより累計約{{amount}}節約できました',
+    'Show cumulative savings, coverage, and backfill progress on the user dashboard.':
+      'ユーザーダッシュボードに累計節約額、カバー率、再計算の進捗を表示します。',
+    'Show lifetime savings in wallet': 'ウォレットに累計節約額を表示',
+    'Show lifetime savings on dashboard': 'ダッシュボードに累計節約額を表示',
+    'Since {{date}} · {{coverage}} coverage':
+      '{{date}}以降 · カバー率 {{coverage}}',
+    'Skipped: {{count}}': 'スキップ：{{count}}',
+    'Start historical backfill': '履歴再計算を開始',
+    '{{processed}} of {{total}} usage logs processed':
+      '{{total}}件中{{processed}}件の利用ログを処理済み',
     'About historical savings estimates': '過去の節約見積もりについて',
     'Estimated savings': '推定節約額',
     'Official price estimate': '公式価格の見積もり',
@@ -555,6 +886,79 @@ const newKeys = {
     Workspace: 'ワークスペース',
   },
   ru: {
+    'Failed to retry historical backfill':
+      'Не удалось повторить исторический пересчет',
+    'Historical savings backfill retry started':
+      'Исторический пересчет продолжен с сохраненного прогресса',
+    'Retry from saved progress': 'Повторить с сохраненного прогресса',
+    'Ambiguous ClickHouse rows skipped: {{count}}':
+      'Пропущено неоднозначных строк ClickHouse: {{count}}',
+    'Tasks currently pending, running, or paused.':
+      'Задачи в ожидании, выполнении или на паузе.',
+    pause_requested: 'приостановка',
+    paused: 'приостановлено',
+    'Savings lifetime backfill': 'Пересчет накопленной экономии',
+    'Failed to pause historical backfill':
+      'Не удалось приостановить исторический пересчет',
+    'Failed to resume historical backfill':
+      'Не удалось возобновить исторический пересчет',
+    'Historical savings backfill pause requested':
+      'Запрошена приостановка исторического пересчета экономии',
+    'Historical savings backfill resumed':
+      'Исторический пересчет экономии возобновлен',
+    'Pause backfill': 'Приостановить пересчет',
+    Paused: 'Приостановлено',
+    Pausing: 'Приостановка',
+    'Resume backfill': 'Возобновить пересчет',
+    'Add the frozen cumulative savings amount to the wallet summary.':
+      'Добавить зафиксированную накопленную экономию в сводку кошелька.',
+    'Aggregate new usage into a frozen lifetime savings total.':
+      'Добавлять новое использование в зафиксированную накопленную экономию.',
+    'Backfill running': 'Пересчет выполняется',
+    'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
+      'Учтено на данный момент · покрытие {{coverage}} · пересчет {{progress}}',
+    'Enable and save lifetime savings before starting a backfill.':
+      'Включите и сохраните накопленную экономию перед запуском пересчета.',
+    'Enable lifetime savings': 'Включить накопленную экономию',
+    'Estimated: {{count}}': 'Оценено: {{count}}',
+    'Failed to start historical backfill':
+      'Не удалось запустить исторический пересчет',
+    'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
+      'Зафиксировать текущие официальные цены и курс, затем рассчитать накопленную экономию по существующим журналам.',
+    'Historical backfill': 'Исторический пересчет',
+    'Historical backfill batch size': 'Размер пакета исторического пересчета',
+    'Historical savings backfill failed':
+      'Исторический пересчет экономии завершился ошибкой',
+    'Historical savings backfill is already active':
+      'Исторический пересчет экономии уже выполняется',
+    'Historical savings backfill started':
+      'Исторический пересчет экономии запущен',
+    'In the last 24 hours, RAPI saved you about {{amount}}':
+      'За последние 24 часа RAPI сэкономил вам около {{amount}}',
+    'Keep a stable cumulative savings total without scanning usage logs when users open a page.':
+      'Хранить стабильную накопленную экономию без сканирования журналов при открытии страницы.',
+    'Last 24h savings estimate': 'Оценка экономии за 24 часа',
+    'Lifetime savings': 'Накопленная экономия',
+    'Lifetime savings counted so far: {{amount}}':
+      'Накопленная экономия на данный момент: {{amount}}',
+    'No lifetime savings records yet': 'Данных о накопленной экономии пока нет',
+    'Prices frozen at {{time}}': 'Цены зафиксированы {{time}}',
+    'Process between 500 and 5000 usage logs per batch.':
+      'Обрабатывать от 500 до 5000 журналов за пакет.',
+    'RAPI has saved you about {{amount}} in total':
+      'RAPI сэкономил вам всего около {{amount}}',
+    'Show cumulative savings, coverage, and backfill progress on the user dashboard.':
+      'Показывать накопленную экономию, покрытие и ход пересчета на панели пользователя.',
+    'Show lifetime savings in wallet':
+      'Показывать накопленную экономию в кошельке',
+    'Show lifetime savings on dashboard':
+      'Показывать накопленную экономию на панели',
+    'Since {{date}} · {{coverage}} coverage':
+      'С {{date}} · покрытие {{coverage}}',
+    'Skipped: {{count}}': 'Пропущено: {{count}}',
+    'Start historical backfill': 'Запустить исторический пересчет',
+    '{{processed}} of {{total}} usage logs processed':
+      'Обработано журналов: {{processed}} из {{total}}',
     'About historical savings estimates':
       'Об оценке экономии за прошлые периоды',
     'Estimated savings': 'Расчётная экономия',
@@ -670,6 +1074,77 @@ const newKeys = {
     Workspace: 'Рабочая область',
   },
   vi: {
+    'Failed to retry historical backfill':
+      'Không thể thử lại tính toán dữ liệu lịch sử',
+    'Historical savings backfill retry started':
+      'Đã tiếp tục tính lại tiết kiệm lịch sử từ tiến độ đã lưu',
+    'Retry from saved progress': 'Thử lại từ tiến độ đã lưu',
+    'Ambiguous ClickHouse rows skipped: {{count}}':
+      'Đã bỏ qua các hàng ClickHouse không thể phân biệt: {{count}}',
+    'Tasks currently pending, running, or paused.':
+      'Các tác vụ đang chờ, đang chạy hoặc tạm dừng.',
+    pause_requested: 'đang tạm dừng',
+    paused: 'đã tạm dừng',
+    'Savings lifetime backfill': 'Tính lại tiết kiệm tích lũy',
+    'Failed to pause historical backfill':
+      'Không thể tạm dừng tính lại dữ liệu lịch sử',
+    'Failed to resume historical backfill':
+      'Không thể tiếp tục tính lại dữ liệu lịch sử',
+    'Historical savings backfill pause requested':
+      'Đã yêu cầu tạm dừng tính lại tiết kiệm lịch sử',
+    'Historical savings backfill resumed':
+      'Đã tiếp tục tính lại tiết kiệm lịch sử',
+    'Pause backfill': 'Tạm dừng tính lại',
+    Paused: 'Đã tạm dừng',
+    Pausing: 'Đang tạm dừng',
+    'Resume backfill': 'Tiếp tục tính lại',
+    'Add the frozen cumulative savings amount to the wallet summary.':
+      'Thêm số tiền tiết kiệm tích lũy đã cố định vào tổng quan ví.',
+    'Aggregate new usage into a frozen lifetime savings total.':
+      'Cộng mức sử dụng mới vào tổng tiết kiệm tích lũy đã cố định.',
+    'Backfill running': 'Đang tính lại',
+    'Counted so far · {{coverage}} coverage · {{progress}} backfilled':
+      'Đã thống kê đến hiện tại · độ phủ {{coverage}} · tính lại {{progress}}',
+    'Enable and save lifetime savings before starting a backfill.':
+      'Hãy bật và lưu tiết kiệm tích lũy trước khi bắt đầu tính lại.',
+    'Enable lifetime savings': 'Bật tiết kiệm tích lũy',
+    'Estimated: {{count}}': 'Đã ước tính: {{count}}',
+    'Failed to start historical backfill':
+      'Không thể bắt đầu tính lại dữ liệu lịch sử',
+    'Freeze current official prices and exchange rate, then calculate lifetime savings from existing usage logs.':
+      'Cố định giá chính thức và tỷ giá hiện tại, sau đó tính tiết kiệm tích lũy từ nhật ký sử dụng hiện có.',
+    'Historical backfill': 'Tính lại dữ liệu lịch sử',
+    'Historical backfill batch size': 'Kích thước lô tính lại lịch sử',
+    'Historical savings backfill failed': 'Tính lại tiết kiệm lịch sử thất bại',
+    'Historical savings backfill is already active':
+      'Tính lại tiết kiệm lịch sử đang hoạt động',
+    'Historical savings backfill started':
+      'Đã bắt đầu tính lại tiết kiệm lịch sử',
+    'In the last 24 hours, RAPI saved you about {{amount}}':
+      'Trong 24 giờ qua, RAPI đã giúp bạn tiết kiệm khoảng {{amount}}',
+    'Keep a stable cumulative savings total without scanning usage logs when users open a page.':
+      'Giữ tổng tiết kiệm tích lũy ổn định mà không quét nhật ký khi người dùng mở trang.',
+    'Last 24h savings estimate': 'Ước tính tiết kiệm 24 giờ qua',
+    'Lifetime savings': 'Tiết kiệm tích lũy',
+    'Lifetime savings counted so far: {{amount}}':
+      'Tiết kiệm tích lũy đã thống kê: {{amount}}',
+    'No lifetime savings records yet': 'Chưa có dữ liệu tiết kiệm tích lũy',
+    'Prices frozen at {{time}}': 'Giá được cố định lúc {{time}}',
+    'Process between 500 and 5000 usage logs per batch.':
+      'Xử lý từ 500 đến 5000 nhật ký sử dụng mỗi lô.',
+    'RAPI has saved you about {{amount}} in total':
+      'RAPI đã giúp bạn tiết kiệm tổng cộng khoảng {{amount}}',
+    'Show cumulative savings, coverage, and backfill progress on the user dashboard.':
+      'Hiển thị tiết kiệm tích lũy, độ phủ và tiến độ tính lại trên bảng điều khiển.',
+    'Show lifetime savings in wallet': 'Hiển thị tiết kiệm tích lũy trong ví',
+    'Show lifetime savings on dashboard':
+      'Hiển thị tiết kiệm tích lũy trên bảng điều khiển',
+    'Since {{date}} · {{coverage}} coverage':
+      'Từ {{date}} · độ phủ {{coverage}}',
+    'Skipped: {{count}}': 'Đã bỏ qua: {{count}}',
+    'Start historical backfill': 'Bắt đầu tính lại lịch sử',
+    '{{processed}} of {{total}} usage logs processed':
+      'Đã xử lý {{processed}} / {{total}} nhật ký sử dụng',
     'About historical savings estimates': 'Về ước tính tiết kiệm trong quá khứ',
     'Estimated savings': 'Khoản tiết kiệm ước tính',
     'Official price estimate': 'Ước tính theo giá chính thức',
